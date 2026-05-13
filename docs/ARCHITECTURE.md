@@ -322,3 +322,301 @@ graph TD
     Frontend -->|HTTP/JSON| Backend
     Backend -->|Prisma ORM| Database
 ```
+
+---
+
+## API Communication
+
+The frontend communicates with the backend through a REST API using HTTP requests and JSON data.
+
+**Communication flow:**
+
+```plaintext
+Frontend
+↓ HTTP Requests
+Express API
+↓
+PostgreSQL
+```
+
+The backend exposes RESTful endpoints that are consumed by the frontend application.
+
+**Example:**
+
+```http
+POST /api/auth/login
+GET /api/products
+POST /api/products
+```
+
+### Data Format
+
+The API uses JSON as the standard data exchange format.
+
+**Example response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Product name"
+  }
+}
+```
+
+### HTTP Methods
+
+**The API follows standard HTTP methods conventions:**
+
+- GET → retrieve data
+- POST → create resources
+- PUT/PATCH → update resources
+- DELETE → remove resources
+
+### Authentication
+
+Authentication will use JWT (JSON Web Tokens).
+
+Authenticated requests will include the token in the Authorization header.
+
+**Example:**
+
+```http
+Authorization: Bearer <token>
+```
+
+### Frontend Communication Layer
+
+The frontend communicates with the backend through dedicated service modules.
+
+**Example:**
+
+```plaintext
+services/auth.service.ts
+services/products.service.ts
+```
+
+This approach centralizes API communication and avoids duplicating request logic across components.
+
+---
+
+## Database Architecture
+
+BC Market uses PostgreSQL as the primary relational database.
+
+The backend communicates with the database through Prisma ORM.
+
+**Architecture flow:**
+
+```plaintext
+Services
+↓
+Prisma Client
+↓
+PostgreSQL
+```
+
+### PostgreSQL
+
+**PostgreSQL is responsible for:**
+
+- Data persistence
+- Relationships between entities
+- Transactions
+- Query execution
+
+The database stores the core business data of the application.
+
+**Examples:**
+
+- users
+- products
+- categories
+- orders
+
+### Prisma ORM
+
+Prisma is used as the database ORM (Object Relational Mapper).
+
+**Responsibilities:**
+
+- Database queries
+- Schema management
+- Migrations
+- Type-safe database access
+
+Prisma acts as an abstraction layer between the application and PostgreSQL.
+
+### Prisma Schema
+
+**Database models are defined inside:**
+
+```plaintext
+prisma/schema.prisma
+```
+
+**The Prisma schema defines:**
+
+- models
+- relationships
+- field types
+- database mappings
+
+### Migrations
+
+Database changes are managed through Prisma migrations.
+
+**Migrations ensure:**
+
+- consistent database structure
+- versioned schema changes
+- reproducible environments
+
+### Database Access
+
+Database access should remain centralized through Prisma Client.
+
+Services are responsible for coordinating business logic before interacting with the database.
+
+---
+
+## Authentication Strategy
+
+BC Market uses JWT-based authentication for protecting private API routes and identifying authenticated users.
+
+**Authentication flow:**
+
+```plaintext
+User Login
+↓
+Backend validates credentials
+↓
+JWT token generated
+↓
+Frontend stores authentication state
+↓
+Authenticated requests include token
+```
+
+### Authentication Process
+
+1. The user submits credentials from the frontend.
+2. The backend validates the credentials.
+3. A JWT token is generated.
+4. The frontend stores the authentication state.
+5. Protected API requests include the authentication token.
+
+### Protected Routes
+
+Protected backend routes require authentication before access is granted.
+
+**Examples:**
+
+- product management
+- order management
+- admin actions
+
+Authentication validation is handled through Express middlewares.
+
+### Authorization Header
+
+Authenticated requests use the Authorization header.
+
+**Example:**
+
+```http
+Authorization: Bearer <token>
+```
+
+### Authentication Middleware
+
+**Authentication middleware is responsible for:**
+
+- validating JWT tokens
+- rejecting unauthorized requests
+- attaching user information to requests
+
+### Frontend Authentication State
+
+**The frontend is responsible for:**
+
+- tracking authentication status
+- handling login/logout
+- protecting frontend routes
+- managing authenticated requests
+
+### Security Concerns
+
+Sensitive operations and protected resources should always be validated on the backend.
+
+Frontend protection alone is not considered secure.
+
+---
+
+## Environment Variables
+
+BC Market uses environment variables for managing sensitive configuration and environment-specific values.
+
+**Examples:**
+
+- database connection strings
+- JWT secrets
+- API URLs
+- application ports
+
+Environment variables are stored in `.env` files and should never be committed to the repository.
+
+### Backend Environment Variables
+
+**Examples:**
+
+```env
+DATABASE_URL=
+JWT_SECRET=
+PORT=
+```
+
+**Responsibilities:**
+
+- database configuration
+- authentication secrets
+- server configuration
+
+### Frontend Environment Variables
+
+Frontend environment variables are used for public configuration values required by the client application.
+
+**Examples:**
+
+```env
+NEXT_PUBLIC_API_URL=
+```
+
+Only variables prefixed with NEXT_PUBLIC_ should be exposed to the browser.
+
+### Security Considerations
+
+Sensitive values must remain private and should only exist on the backend environment.
+
+**Examples of sensitive data:**
+
+- database credentials
+- JWT secrets
+- API private keys
+
+These values should never be exposed to the frontend application.
+
+### Environment Separation
+
+Different environments may use different configurations.
+
+**Examples:**
+
+- development
+- testing
+- production
+
+This separation helps maintain consistency and security across deployments.
+
+---
