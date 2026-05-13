@@ -211,3 +211,114 @@ Application entry point.
 - loading middlewares
 - registering routes
 - initializing the application
+
+---
+
+## Frontend Architecture
+
+The frontend is built with Next.js using the App Router architecture.
+
+The frontend is responsible for:
+
+- Rendering the user interface
+- Managing client-side interactions
+- Handling navigation
+- Communicating with the backend API
+- Managing authentication state
+
+The application follows a component-based architecture focused on reusability and separation of concerns.
+
+---
+
+## Frontend Folder Structure
+
+The frontend application is organized using the Next.js App Router structure.
+
+```plaintext
+src/
+├── app/
+├── components/
+├── services/
+├── lib/
+├── hooks/
+├── types/
+├── styles/
+└── utils/
+```
+
+### app
+
+Contains routes, layouts, and pages.
+
+Managed by the Next.js App Router system.
+
+### components
+
+Reusable UI components.
+
+**Possible organization:**
+
+- ui/
+- forms/
+- auth/
+- layout/
+
+### services(frontend)
+
+Frontend API communication layer.
+
+**Responsible for:**
+
+- API requests
+- request abstraction
+- backend communication
+
+### lib(frontend)
+
+Shared frontend libraries and integrations.
+
+**Examples:**
+
+- Axios instance
+- authentication helpers
+- external libraries setup
+
+### hooks
+
+Custom React hooks.
+
+**Examples:**
+
+- authentication hooks
+- form hooks
+- data fetching hooks
+
+### types(frontend)
+
+Shared frontend TypeScript types.
+
+### styles
+
+Global styles and styling configuration.
+
+### utils(frontend)
+
+Reusable helper functions.
+
+---
+
+## System Architecture Diagram
+
+```mermaid
+graph TD
+
+    User[User]
+
+    Frontend[Next.js Frontend]
+    Backend[Express API]
+    Database[(PostgreSQL)]
+
+    User --> Frontend
+    Frontend -->|HTTP/JSON| Backend
+    Backend -->|Prisma ORM| Database
+```
