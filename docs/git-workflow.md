@@ -65,13 +65,48 @@ Ejemplo:
 git commit -m "chore: setup monorepo structure"
 ```
 
-### 4. Hacer merge a develop
+### 4. Subir cambios
 
 ```bash
-git checkout develop
-git merge feature/setup-monorepo
-git push
+git push -u origin feature/nombre-feature
 ```
+
+### 5. Abrir Pull Request hacia `develop`
+
+Base:
+
+```plaintext
+develop
+```
+
+Compare:
+
+```plaintext
+feature/nombre-feature
+```
+
+### 6. Revisar cambios antes de merge
+
+Verificar:
+
+- Archivos modificados
+- Commits
+- Funcionamiento local
+- Estructura del proyecto
+
+### 7. Realizar Squash Merge
+
+Se utilizará:
+
+```plaintext
+Squash and merge
+```
+
+Objetivo:
+
+- Mantener historial limpio
+- Evitar ruido de commits intermedios
+- Mejorar legibilidad del proyecto
 
 ---
 
@@ -125,6 +160,7 @@ refactor: simplify auth middleware
 - Evitar commits gigantes
 - Cada feature debe tener su propia rama
 - Mantener commits claros y descriptivos
+- Mantener PRs pequeños y enfocados
 - Probar cambios antes de hacer merge
 
 ---
