@@ -1,12 +1,12 @@
 # Pull Request
 
-## Descripción
+## Description
 
-Explica brevemente qué cambios incluye este PR.
+Briefly explain the purpose of this PR.
 
 ---
 
-## Tipo de cambio
+## Type of Change
 
 - [ ] Feature
 - [ ] Fix
@@ -16,7 +16,7 @@ Explica brevemente qué cambios incluye este PR.
 
 ---
 
-## Cambios realizados
+## Changes Made
 
 -  
 -  
@@ -24,15 +24,15 @@ Explica brevemente qué cambios incluye este PR.
 
 ---
 
-## Verificaciones
+## Verification Checklist
 
-- [ ] Proyecto ejecuta correctamente
-- [ ] No se subieron archivos innecesarios
-- [ ] Se probaron los cambios localmente
-- [ ] Se mantiene la estructura del proyecto
+- [ ] Project runs correctly
+- [ ] No unnecessary files were added
+- [ ] Changes were tested locally
+- [ ] Project structure remains consistent
 
 ---
 
-## Notas adicionales
+## Additional Notes
 
-Información adicional relevante.
+Add any relevant extra information here.

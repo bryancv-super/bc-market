@@ -1,32 +1,32 @@
 # Git Workflow — BC Market
 
-## Objetivo
+## Objective
 
-Mantener un flujo de trabajo organizado, escalable y profesional durante el desarrollo del proyecto.
+Maintain an organized, scalable, and professional development workflow.
 
 ---
 
-## Estructura de ramas
+## Branch Structure
 
 ### main
 
-Rama estable del proyecto.
+Stable production-ready branch.
 
-- Contiene versiones funcionales y estables
-- No se desarrolla directamente aquí
+- Contains stable versions of the project
+- Direct development is not allowed
 
 ### develop
 
-Rama principal de desarrollo.
+Main development branch.
 
-- Integra nuevas funcionalidades
-- Base para crear feature branches
+- Integrates completed features
+- Base branch for feature branches
 
 ### feature/*
 
-Ramas temporales para nuevas funcionalidades o tareas específicas.
+Temporary branches for specific features or tasks.
 
-Ejemplos:
+Examples:
 
 ```bash
 feature/setup-monorepo
@@ -36,141 +36,140 @@ feature/auth-system
 
 ---
 
-## Flujo de trabajo
+## Workflow
 
-### 1. Actualizar develop
+### 1. Update develop
 
 ```bash
 git checkout develop
 git pull
 ```
 
-### 2. Crear nueva feature branch
+### 2. Create a feature branch
 
 ```bash
-git checkout -b feature/nombre-feature
+git checkout -b feature/feature-name
 ```
 
-Ejemplo:
+Example:
 
 ```bash
 git checkout -b feature/setup-monorepo
 ```
 
-### 3. Trabajar y realizar commits pequeños
+### 3. Work and create small commits
 
-Ejemplo:
+Example:
 
 ```bash
 git commit -m "chore: setup monorepo structure"
 ```
 
-### 4. Subir cambios
+### 4. Push changes
 
 ```bash
-git push -u origin feature/nombre-feature
+git push -u origin feature/feature-name
 ```
 
-### 5. Abrir Pull Request hacia `develop`
+### 5. Open Pull Request into develop
 
-Base:
+Base branch:
 
 ```plaintext
 develop
 ```
 
-Compare:
+Compare branch:
 
 ```plaintext
-feature/nombre-feature
+feature/feature-name
 ```
 
-### 6. Revisar cambios antes de merge
+### 6. Review changes before merging
 
-Verificar:
+Verify:
 
-- Archivos modificados
-- Commits
-- Funcionamiento local
-- Estructura del proyecto
+- Modified files
+- Commit history
+- Local functionality
+- Project structure
 
-### 7. Realizar Squash Merge
+### 7. Use Squash and Merge
 
-Se utilizará:
+Strategy:
 
 ```plaintext
 Squash and merge
 ```
 
-Objetivo:
+Purpose:
 
-- Mantener historial limpio
-- Evitar ruido de commits intermedios
-- Mejorar legibilidad del proyecto
+- Keep commit history clean
+- Avoid noisy intermediate commits
+- Improve repository readability
 
 ---
 
-## Convención de commits
+## Commit Convention
 
 ### feat
 
-Nueva funcionalidad.
+New feature.
 
-```bash
-feat: add products endpoint
+```plaintext
+feat: add authentication routes
 ```
 
 ### fix
 
-Corrección de errores.
+Bug fix.
 
-```bash
+```plaintext
 fix: correct route validation
 ```
 
 ### chore
 
-Configuración, mantenimiento o cambios técnicos.
+Maintenance or configuration changes.
 
-```bash
+```plaintext
 chore: configure npm workspaces
 ```
 
 ### docs
 
-Documentación.
+Documentation updates.
 
-```bash
+```plaintext
 docs: add git workflow documentation
 ```
 
 ### refactor
 
-Mejora interna de código sin cambiar comportamiento.
+Internal code improvements without changing behavior.
 
-```bash
+```plaintext
 refactor: simplify auth middleware
 ```
 
 ---
 
-## Reglas importantes
+## Rules
 
-- Nunca trabajar directamente en `main`
-- Evitar commits gigantes
-- Cada feature debe tener su propia rama
-- Mantener commits claros y descriptivos
-- Mantener PRs pequeños y enfocados
-- Probar cambios antes de hacer merge
+- Never work directly on `main`
+- Avoid large commits
+- One feature per branch
+- Keep commits descriptive
+- Test changes before merging
 
 ---
 
-## Objetivo futuro
+## Future Goals
 
-Este flujo servirá como base para:
+This workflow will support:
 
 - Pull Requests
 - CI/CD
 - Branch protection
-- Trabajo colaborativo
-- Deploy automatizado
+- Team collaboration
+- Automated deployments
