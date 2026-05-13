@@ -620,3 +620,177 @@ Different environments may use different configurations.
 This separation helps maintain consistency and security across deployments.
 
 ---
+
+## Development Workflow
+
+BC Market follows a Git workflow focused on clean history, collaboration practices, and incremental development.
+
+**Branch structure:**
+
+```plaintext
+main
+└── develop
+    └── feature/*
+```
+
+### main
+
+Represents stable and production-ready states of the project.
+
+This branch should remain protected and updated only through Pull Requests.
+
+### develop
+
+Primary integration branch for ongoing development.
+
+New features are merged into this branch before reaching main.
+
+### feature/*
+
+Feature branches are used for isolated development work.
+
+**Examples:**
+
+- feature/auth-system
+- feature/products-module
+- feature/database-setup
+
+### Pull Requests
+
+All changes should be integrated through Pull Requests.
+
+**Benefits:**
+
+- cleaner history
+- change review
+- better traceability
+- safer merges
+
+### Merge Strategy
+
+The project uses Squash and Merge as the primary merge strategy.
+
+**Benefits:**
+
+- simplified commit history
+- cleaner project timeline
+- easier navigation through changes
+
+**Example:**
+
+```plaintext
+feat: setup backend architecture
+```
+
+instead of multiple temporary commits.
+
+### Conventional Commits
+
+Commit messages follow the Conventional Commits specification.
+
+**Examples:**
+
+```plaintext
+feat: add authentication module
+fix: resolve login validation issue
+docs: update architecture documentation
+chore: configure eslint
+```
+
+### Project Language
+
+Technical communication inside the repository is written in English.
+
+**Includes:**
+
+- commits
+- pull requests
+- issues
+- labels
+- technical documentation
+
+---
+
+## Architectural Principles
+
+BC Market follows a pragmatic architecture approach focused on maintainability, scalability, and progressive learning.
+
+**The project prioritizes:**
+
+- clear separation of responsibilities
+- incremental complexity
+- maintainable code structure
+- consistent development workflows
+- long-term scalability
+
+### Avoiding Premature Overengineering
+
+The architecture intentionally avoids unnecessary complexity during early development stages.
+
+**Examples of intentionally postponed patterns:**
+
+- microservices
+- complex dependency injection systems
+- event-driven architecture
+- CQRS
+- advanced repository abstractions
+
+The project favors simplicity and clarity until additional complexity becomes necessary.
+
+### Separation of Responsibilities
+
+Each layer of the application has a clearly defined responsibility.
+
+**Examples:**
+
+- routes handle endpoint definitions
+- controllers manage HTTP communication
+- services contain business logic
+- Prisma manages database access
+
+**This separation improves:**
+
+- maintainability
+- readability
+- scalability
+- testability
+
+### Scalability Through Structure
+
+The project is designed to scale progressively without requiring major architectural rewrites.
+
+**The monorepo structure allows future expansion such as:**
+
+- admin panels
+- mobile applications
+- shared packages
+- additional services
+
+### Consistency First
+
+**The project prioritizes consistency across:**
+
+- folder structures
+- naming conventions
+- API design
+- Git workflows
+- documentation
+
+Consistency improves long-term maintainability and developer experience.
+
+### Documentation as Part of the Architecture
+
+Technical documentation is considered part of the project architecture.
+
+**Architectural decisions and workflows should remain documented to ensure:**
+
+- project consistency
+- easier onboarding
+- long-term maintainability
+- decision traceability
+
+### Learning-Oriented Development
+
+The project is also designed as a professional learning experience.
+
+Decisions prioritize understanding architectural concepts and real-world workflows instead of rapidly adding features without structure.
