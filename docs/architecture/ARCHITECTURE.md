@@ -315,12 +315,20 @@ graph TD
     User[User]
 
     Frontend[Next.js Frontend]
+
     Backend[Express API]
-    Database[(PostgreSQL)]
+
+    Database[(PostgreSQL Database)]
+
+    EmailService[Resend Email Service]
 
     User --> Frontend
+
     Frontend -->|HTTP/JSON| Backend
+
     Backend -->|Prisma ORM| Database
+
+    Backend -->|SMTP/API Requests| EmailService
 ```
 
 ---
