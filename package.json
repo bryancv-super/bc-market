@@ -11,10 +11,5 @@
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
-  },
-  "dependencies": {
-    "@radix-ui/react-dialog": "^1.1.15",
-    "lucide-react": "^1.16.0",
-    "sonner": "^2.0.7"
   }
 }
