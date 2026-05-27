@@ -11,13 +11,35 @@ import { EmptyState } from "@/components/ui/Empty-state"
 import { PackageSearch } from "lucide-react"
 import { Modal } from "@/components/ui/Modal"
 import { toast } from "sonner"
+import { AppHeader } from "@/components/layout/AppHeader";
+import { BackButton } from "@/components/navigation/BackButton"
+
 
 export default function HomePage() {
   const [open, setOpen] = useState(false)
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-screen-sm flex-col gap-8 p-4">
-      
+      <AppHeader
+        title="BC Market"
+        subtitle="Organiza tus compras"
+      />
+
+      <AppHeader
+      leftSlot={<BackButton fallbackHref="/" />}
+      title="My Lists"
+      />
+
+      <AppHeader
+      leftSlot={<BackButton fallbackHref="/lists" />}
+      title="Groceries"
+      rightSlot={
+        <Button variant="ghost" className="icon">
+          Edit
+        </Button>
+      }
+      />      
+        
       {/* Header */}
       <section className="space-y-2">
         <h1 className="text-2xl font-bold">

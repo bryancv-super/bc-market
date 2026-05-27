@@ -1,19 +1,31 @@
-interface Props {
-    children: React.ReactNode;
-  }
-  
-  export function MobileContainer({ children }: Props) {
-    return (
-      <main
-        className="
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+
+interface MobileContainerProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export function MobileContainer({
+  children,
+  className,
+}: MobileContainerProps) {
+  return (
+    <main
+      className={cn(
+        `
           mx-auto
+          flex
           min-h-screen
           w-full
-          max-w-97.5
-          px-4
-        "
-      >
-        {children}
-      </main>
-    );
-  }
+          max-w-md
+          flex-col
+          bg-background
+        `,
+        className
+      )}
+    >
+      {children}
+    </main>
+  );
+}

@@ -1,18 +1,25 @@
+import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-interface Props {
-  children: React.ReactNode;
+interface PageSectionProps {
+  children: ReactNode;
   className?: string;
 }
 
 export function PageSection({
   children,
   className,
-}: Props) {
+}: PageSectionProps) {
   return (
     <section
       className={cn(
-        "py-4",
+        `
+          flex
+          flex-col
+          gap-4
+          px-4
+          py-4
+        `,
         className
       )}
     >
