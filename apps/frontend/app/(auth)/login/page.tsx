@@ -29,8 +29,8 @@ export default function LoginPage() {
  const data = await response.json();
  localStorage.setItem("token", data.token);
  window.location.href = "/";
- } catch (err: any) {
- setError(err.message);
+ } catch (err) {
+ setError(err instanceof Error ? err.message : "No se pudo iniciar sesión");
  } finally {
  setLoading(false);
  }

@@ -14,7 +14,7 @@ export default function SignupPage() {
 
  const handleSubmit = async (e: React.FormEvent) => {
  e.preventDefault();
- setError("(");
+ setError("");
  setLoading(true);
 
  try {
@@ -32,8 +32,8 @@ export default function SignupPage() {
  const data = await response.json();
  localStorage.setItem("token", data.token);
  window.location.href = "/";
- } catch (err: any) {
- setError(err.message);
+ } catch (err) {
+ setError(err instanceof Error ? err.message : "No se pudo crear la cuenta");
  } finally {
  setLoading(false);
  }
