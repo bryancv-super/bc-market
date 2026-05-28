@@ -21,14 +21,19 @@ export const getUserShoppingLists = async (userId: string) => {
   });
 };
 
-export const getShoppingListById = async (listId: string) => {
+export const getShoppingListById = async (listId: string, userId: string) => {
   return await prisma.shoppingList.findUnique({
-    where: { id: listId },
+    where: { id: listId, userId },
     include: {
       items: {
         include: {
-          product: true,
+          product: {
+            include: {
+              category: true,
+            },
+          },
         },
+        orderBy: { createdAt: "asc" },
       },
     },
   });
@@ -58,12 +63,33 @@ export const deleteShoppingList = async (listId: string, userId: string) => {
     throw new Error("List not found or unauthorized");
   }
 
-  return await prisma.shoppingList.delete({
-    where: { id: listId },
+  return await prisma.$transaction(async (tx) => {
+    await tx.shoppingListItem.deleteMany({
+      where: { shoppingListId: listId },
+    });
+
+    return tx.shoppingList.delete({
+      where: { id: listId },
+    });
   });
 };
 
-export const addProductToList = async (listId: string, productId: string, quantity: number = 1) => {
+export const addProductToList = async (
+  userId: string,
+  listId: string,
+  productId: string,
+  quantity: number = 1,
+) => {
+  const list = await prisma.shoppingList.findUnique({
+    where: { id: listId },
+  });
+
+  if (!list || list.userId !== userId) {
+    throw new Error("List not found or unauthorized");
+  }
+
+  const safeQuantity = Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 1;
+
   const item = await prisma.shoppingListItem.findFirst({
     where: {
       shoppingListId: listId,
@@ -74,7 +100,8 @@ export const addProductToList = async (listId: string, productId: string, quanti
   if (item) {
     return await prisma.shoppingListItem.update({
       where: { id: item.id },
-      data: { quantity: { increment: quantity } },
+      data: { quantity: { increment: safeQuantity } },
+      include: { product: true },
     });
   }
 
@@ -82,17 +109,19 @@ export const addProductToList = async (listId: string, productId: string, quanti
     data: {
       shoppingListId: listId,
       productId: productId,
-      quantity,
+      quantity: safeQuantity,
     },
+    include: { product: true },
   });
 };
 
-export const toggleItemChecked = async (itemId: string) => {
+export const toggleItemChecked = async (itemId: string, userId: string) => {
   const item = await prisma.shoppingListItem.findUnique({
     where: { id: itemId },
+    include: { shoppingList: true },
   });
 
-  if (!item) throw new Error("Item not found");
+  if (!item || item.shoppingList.userId !== userId) throw new Error("Item not found or unauthorized");
 
   return await prisma.shoppingListItem.update({
     where: { id: itemId },
@@ -100,7 +129,14 @@ export const toggleItemChecked = async (itemId: string) => {
   });
 };
 
-export const removeItemFromList = async (itemId: string) => {
+export const removeItemFromList = async (itemId: string, userId: string) => {
+  const item = await prisma.shoppingListItem.findUnique({
+    where: { id: itemId },
+    include: { shoppingList: true },
+  });
+
+  if (!item || item.shoppingList.userId !== userId) throw new Error("Item not found or unauthorized");
+
   return await prisma.shoppingListItem.delete({
     where: { id: itemId },
   });
