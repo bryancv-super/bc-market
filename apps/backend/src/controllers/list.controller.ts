@@ -26,7 +26,8 @@ export const getLists = async (req: Request, res: Response) => {
 export const getListById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const list = await listService.getShoppingListById(id);
+    const userId = (req as AuthRequest).userId!;
+    const list = await listService.getShoppingListById(id, userId);
     if (!list) return res.status(404).json({ message: "List not found" });
     res.status(200).json(list);
   } catch (error: any) {
@@ -59,7 +60,8 @@ export const deleteList = async (req: Request, res: Response) => {
 export const addProduct = async (req: Request, res: Response) => {
   try {
     const { listId, productId, quantity } = req.body;
-    const item = await listService.addProductToList(listId, productId, quantity);
+    const userId = (req as AuthRequest).userId!;
+    const item = await listService.addProductToList(userId, listId, productId, quantity);
     res.status(201).json(item);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
@@ -69,7 +71,8 @@ export const addProduct = async (req: Request, res: Response) => {
 export const toggleItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const item = await listService.toggleItemChecked(id);
+    const userId = (req as AuthRequest).userId!;
+    const item = await listService.toggleItemChecked(id, userId);
     res.status(200).json(item);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
@@ -79,7 +82,8 @@ export const toggleItem = async (req: Request, res: Response) => {
 export const removeItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    await listService.removeItemFromList(id);
+    const userId = (req as AuthRequest).userId!;
+    await listService.removeItemFromList(id, userId);
     res.status(204).send();
   } catch (error: any) {
     res.status(400).json({ message: error.message });
