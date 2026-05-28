@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { LogOut, UserCircle } from "lucide-react";
 
 export default function Header() {
   return (
@@ -15,6 +15,10 @@ export default function Header() {
         </Link>
         <Link href="/lists" className="text-text-muted hover:text-text-main text-[16px] transition-colors">
           Mis Listas
+        </Link>
+        <Link href="/cuenta" className="text-text-muted hover:text-text-main text-[16px] transition-colors flex items-center gap-2">
+          <UserCircle size={18} />
+          <span className="hidden sm:inline">Cuenta</span>
         </Link>
         <button 
           onClick={() => {
