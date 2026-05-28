@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react";
-import { Search, Plus, ShoppingBag } from "lucide-react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { Check, PackagePlus, Search, ShoppingBag } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 interface Product {
   id: string;
   name: string;
-  price: number;
+  price: number | string;
   unit: string;
-  imageUrl: string;
+  imageUrl?: string | null;
   category: {
     id: string;
     name: string;
@@ -22,181 +22,242 @@ interface Category {
   name: string;
 }
 
-export default function CatalogPage() {
+const API_URL = "http://localhost:3001/api";
+
+function CatalogContent() {
   const searchParams = useSearchParams();
   const listId = searchParams.get("listId");
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("Todos");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("Todos");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchInitialData();
-  }, []);
+  const [error, setError] = useState("");
+  const [addedProductIds, setAddedProductIds] = useState<string[]>([]);
+  const [pendingProductId, setPendingProductId] = useState<string | null>(null);
 
   const fetchInitialData = async () => {
     try {
       const [catRes, prodRes] = await Promise.all([
-        fetch("http://localhost:3001/api/categories"),
-        fetch("http://localhost:3001/api/products")
+        fetch(`${API_URL}/categories`),
+        fetch(`${API_URL}/products`),
       ]);
+
+      if (!catRes.ok || !prodRes.ok) throw new Error("No se pudo cargar el catálogo");
+
       const catData = await catRes.json();
       const prodData = await prodRes.json();
-      setCategories(catData);
-      setProducts(prodData);
-    } catch (error) {
-      console.error("Error fetching catalog data:", error);
+      setCategories(Array.isArray(catData) ? catData : []);
+      setProducts(Array.isArray(prodData) ? prodData : []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo cargar el catálogo");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredProducts = products.filter(p => 
-    (selectedCategoryId === "Todos" || p.category.id === selectedCategoryId) &&
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchInitialData();
+  }, []);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchesCategory = selectedCategoryId === "Todos" || product.category.id === selectedCategoryId;
+      const matchesSearch = product.name.toLowerCase().includes(searchQuery.trim().toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [products, searchQuery, selectedCategoryId]);
 
   const addProductToList = async (productId: string) => {
-    if (!listId) {
-      alert("Por favor, selecciona una lista primero desde la vista de detalles de la lista.");
-      return;
-    }
+    if (!listId) return;
 
+    setPendingProductId(productId);
+    setError("");
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3001/api/lists/items", {
+      const response = await fetch(`${API_URL}/lists/items`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}` 
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
-          listId, 
-          productId, 
-          quantity: 1 
+        body: JSON.stringify({
+          listId,
+          productId,
+          quantity: 1,
         }),
       });
 
-      if (response.ok) {
-        alert("Producto añadido a la lista correctamente");
-      } else {
-        const data = await response.json();
-        alert(`Error: ${data.message}`);
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.message || "No se pudo añadir el producto");
       }
-    } catch (error) {
-      console.error("Error adding product:", error);
-      alert("Ocurrió un error al añadir el producto");
+
+      setAddedProductIds((current) => Array.from(new Set([...current, productId])));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo añadir el producto");
+    } finally {
+      setPendingProductId(null);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-100">
-        <div className="w-12 h-12 border-4 border-primary-light border-t-primary rounded-full animate-spin"></div>
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        <div className="h-9 w-72 bg-border-main rounded-md animate-pulse mb-8" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((item) => (
+            <div key={item} className="bg-surface p-6 rounded-xl border border-border-main">
+              <div className="aspect-square w-full mb-4 rounded-lg bg-border-main animate-pulse" />
+              <div className="h-5 w-3/4 bg-border-main rounded animate-pulse mb-3" />
+              <div className="h-4 w-1/2 bg-border-main rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
         <div className="flex flex-col gap-2">
-          <h1 className="text-text-main font-bold text-[30px] mb-2">Catálogo de Productos</h1>
+          <h1 className="text-text-main font-bold text-[30px]">Catálogo de Productos</h1>
+          <p className="text-text-muted text-[16px]">Encuentra productos y agrégalos a tus listas.</p>
           {listId && (
-            <div className="flex items-center gap-2 text-primary font-medium">
+            <Link
+              href={`/lists/${listId}`}
+              className="inline-flex items-center gap-2 text-primary hover:text-primary-dark font-semibold text-sm"
+            >
               <ShoppingBag size={18} />
-              <span>Añadiendo a la lista: <span className="font-bold underline">Ver Detalles</span></span>
-            </div>
+              Añadiendo a una lista. Volver al detalle
+            </Link>
           )}
-          <p className="text-text-muted text-[16px]">Encuentra todo lo que necesitas para tus listas</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
-            <input 
-              type="text"
-              placeholder="Buscar producto..."
-              className="pl-10 pr-4 py-3 rounded-lg border border-border-main focus:outline-none focus:ring-2 focus:ring-primary text-text-main w-full md:w-75"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
+          <input
+            type="text"
+            placeholder="Buscar producto..."
+            className="w-full pl-10 pr-4 py-3 rounded-lg border border-border-main focus:outline-none focus:ring-2 focus:ring-primary text-text-main"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+          />
         </div>
       </div>
+
+      {error && (
+        <div className="mb-6 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-danger">
+          {error}
+        </div>
+      )}
+
+      {!listId && (
+        <div className="mb-6 rounded-lg border border-border-main bg-surface px-4 py-3 text-sm text-text-muted">
+          Abre una lista y usa “Añadir productos” para guardar productos en ella.
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2 mb-8">
         <button
           onClick={() => setSelectedCategoryId("Todos")}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-            selectedCategoryId === "Todos" 
-              ? "bg-primary text-white" 
+            selectedCategoryId === "Todos"
+              ? "bg-primary-light text-primary border border-primary"
               : "bg-white text-text-muted border border-border-main hover:border-primary"
           }`}
         >
           Todos
         </button>
-        {categories.map(cat => (
+        {categories.map((category) => (
           <button
-            key={cat.id}
-            onClick={() => setSelectedCategoryId(cat.id)}
+            key={category.id}
+            onClick={() => setSelectedCategoryId(category.id)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              selectedCategoryId === cat.id 
-                ? "bg-primary text-white" 
+              selectedCategoryId === category.id
+                ? "bg-primary-light text-primary border border-primary"
                 : "bg-white text-text-muted border border-border-main hover:border-primary"
             }`}
           >
-            {cat.name}
+            {category.name}
           </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filteredProducts.map(product => (
-          <div 
-            key={product.id} 
-            className="bg-surface p-6 rounded-xl border border-border-main shadow-sm hover:shadow-md transition-all group"
-          >
-            <div className="aspect-square w-full mb-4 overflow-hidden rounded-lg bg-zinc-100">
-              <img 
-                src={product.imageUrl || "https://via.placeholder.com/150"} 
-                alt={product.name} 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex flex-col">
-                <span className="text-caption text-text-muted uppercase font-medium">{product.category.name}</span>
-                <h3 className="text-text-main font-semibold text-[20px] leading-tight">{product.name}</h3>
-              </div>
-              <span className="text-text-main font-bold text-[18px]">${Number(product.price).toFixed(2)}</span>
-            </div>
-            <div className="flex items-center justify-between mt-6">
-              <span className="text-text-muted text-sm">{product.unit}</span>
-              <button 
-                onClick={() => addProductToList(product.id)}
-                className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
-              >
-                <Plus size={16} />
-                Agregar
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {filteredProducts.length === 0 && (
+      {filteredProducts.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-text-muted text-lg mb-6">No se encontraron productos que coincidan con tu búsqueda</p>
-          <button 
-            onClick={() => {setSearchQuery(""); setSelectedCategoryId("Todos");}}
+          <button
+            onClick={() => {
+              setSearchQuery("");
+              setSelectedCategoryId("Todos");
+            }}
             className="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors"
           >
             Limpiar filtros
           </button>
         </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredProducts.map((product) => {
+            const wasAdded = addedProductIds.includes(product.id);
+            const isPending = pendingProductId === product.id;
+
+            return (
+              <div
+                key={product.id}
+                className="bg-surface p-6 rounded-xl border border-border-main shadow-sm hover:shadow-md transition-all group"
+              >
+                <div className="aspect-square w-full mb-4 overflow-hidden rounded-lg bg-zinc-100">
+                  <img
+                    src={product.imageUrl || "https://placehold.co/300x300/f8fafc/64748b?text=BC+Market"}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="flex justify-between items-start gap-3 mb-2">
+                  <div className="min-w-0">
+                    <span className="text-xs text-text-muted uppercase font-medium">{product.category.name}</span>
+                    <h2 className="text-text-main font-semibold text-[20px] leading-tight truncate">{product.name}</h2>
+                  </div>
+                  <span className="text-text-main font-bold text-[18px]">${Number(product.price).toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between mt-6">
+                  <span className="text-text-muted text-sm">{product.unit}</span>
+                  <button
+                    onClick={() => addProductToList(product.id)}
+                    disabled={!listId || isPending}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors disabled:cursor-not-allowed ${
+                      wasAdded
+                        ? "bg-primary-light text-primary"
+                        : "bg-primary hover:bg-primary-dark text-white disabled:bg-border-main disabled:text-text-muted"
+                    }`}
+                  >
+                    {wasAdded ? <Check size={16} /> : <PackagePlus size={16} />}
+                    {wasAdded ? "Añadido" : isPending ? "Añadiendo" : "Agregar"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );
-} 
+}
+
+export default function CatalogPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-100">
+          <div className="w-12 h-12 border-4 border-primary-light border-t-primary rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <CatalogContent />
+    </Suspense>
+  );
+}
