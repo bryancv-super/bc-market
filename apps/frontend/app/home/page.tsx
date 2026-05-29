@@ -33,23 +33,21 @@ export default function HomePage() {
 
   const filteredProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-
     return products.filter((product) => {
       const matchesQuery =
         !normalizedQuery ||
         product.name.toLowerCase().includes(normalizedQuery) ||
         product.category.toLowerCase().includes(normalizedQuery);
-      const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory;
-
+      const matchesCategory =
+        selectedCategory === "Todos" || product.category === selectedCategory;
       return matchesQuery && matchesCategory;
     });
   }, [products, query, selectedCategory]);
 
-  const categories = useMemo(() => ["Todos", ...Array.from(new Set(products.map((product) => product.category)))], [products]);
-
-  function handleFilterClick() {
-    setIsFilterOpen(true);
-  }
+  const categories = useMemo(
+    () => ["Todos", ...Array.from(new Set(products.map((p) => p.category)))],
+    [products]
+  );
 
   function showToast(message: string) {
     setToast(message);
@@ -57,25 +55,20 @@ export default function HomePage() {
   }
 
   function handleAddToList(listId: string) {
-    if (!selectedProduct) {
-      return;
-    }
-
+    if (!selectedProduct) return;
     addProductToList(listId, selectedProduct.id);
     setSelectedProduct(null);
     showToast("Producto agregado a la lista");
   }
 
-  function handleCreateAndAdd() {
-    if (!selectedProduct || !newListName.trim()) {
-      return;
-    }
-
-    const list = createList(newListName.trim());
-    addProductToList(list.id, selectedProduct.id);
+  // Ahora "Crear lista" solo crea la lista sin intentar agregar el producto.
+  // El usuario puede luego abrir la lista y agregar desde el catálogo.
+  function handleCreateList() {
+    if (!newListName.trim()) return;
+    createList(newListName.trim());
     setNewListName("");
     setSelectedProduct(null);
-    showToast("Lista creada con el producto");
+    showToast("Lista creada");
   }
 
   return (
@@ -84,7 +77,7 @@ export default function HomePage() {
       <div className="mt-12 space-y-5">
         <SearchBar
           onChange={(event) => setQuery(event.target.value)}
-          onFilterClick={handleFilterClick}
+          onFilterClick={() => setIsFilterOpen(true)}
           value={query}
         />
         {selectedCategory !== "Todos" ? (
@@ -100,6 +93,7 @@ export default function HomePage() {
           Mis Listas
         </Link>
       </div>
+
       <PageSection title="Productos">
         {isLoading ? (
           <>
@@ -121,6 +115,8 @@ export default function HomePage() {
           ))
         )}
       </PageSection>
+
+      {/* Panel: seleccionar lista existente para agregar el producto */}
       {selectedProduct ? (
         <div className="fixed inset-0 z-50 grid place-items-end bg-text-primary/20 px-5 pb-6">
           <section className="w-full max-w-[342px] rounded-t-2xl bg-surface p-5 shadow-xl">
@@ -129,24 +125,35 @@ export default function HomePage() {
                 <h2 className="text-xl font-bold text-text-primary">Seleccionar lista</h2>
                 <p className="mt-1 text-xs text-text-secondary">{selectedProduct.name}</p>
               </div>
-              <button className="text-sm text-text-secondary" type="button" onClick={() => setSelectedProduct(null)}>
+              <button
+                className="text-sm text-text-secondary"
+                type="button"
+                onClick={() => setSelectedProduct(null)}
+              >
                 Cerrar
               </button>
             </div>
+
+            {/* Listas existentes */}
             <div className="mt-5 space-y-3">
-              {lists.length === 0 ? <EmptyState title="No tienes listas creadas" /> : null}
-              {lists.map((list) => (
-                <button
-                  key={list.id}
-                  className="flex min-h-14 w-full items-center justify-between rounded-xl border border-border-muted bg-surface px-4 text-left"
-                  type="button"
-                  onClick={() => handleAddToList(list.id)}
-                >
-                  <span className="font-bold text-text-primary">{list.name}</span>
-                  <span className="text-xs text-text-secondary">{list.items.length} items</span>
-                </button>
-              ))}
+              {lists.length === 0 ? (
+                <EmptyState title="No tienes listas creadas" />
+              ) : (
+                lists.map((list) => (
+                  <button
+                    key={list.id}
+                    className="flex min-h-14 w-full items-center justify-between rounded-xl border border-border-muted bg-surface px-4 text-left"
+                    type="button"
+                    onClick={() => handleAddToList(list.id)}
+                  >
+                    <span className="font-bold text-text-primary">{list.name}</span>
+                    <span className="text-xs text-text-secondary">{list.items.length} items</span>
+                  </button>
+                ))
+              )}
             </div>
+
+            {/* Crear nueva lista — solo crea, no intenta agregar */}
             <div className="mt-5 space-y-3 border-t border-border-muted pt-5">
               <Input
                 label="Nueva lista"
@@ -154,21 +161,30 @@ export default function HomePage() {
                 placeholder="Compras de la semana"
                 value={newListName}
               />
-              <Button className="w-full" disabled={!newListName.trim()} type="button" onClick={handleCreateAndAdd}>
-                Crear y agregar
+              <Button
+                className="w-full"
+                disabled={!newListName.trim()}
+                type="button"
+                onClick={handleCreateList}
+              >
+                Crear lista
               </Button>
             </div>
           </section>
         </div>
       ) : null}
+
+      {/* Panel: filtro de categorías */}
       {isFilterOpen ? (
         <div className="fixed inset-0 z-50 grid place-items-end bg-text-primary/20 px-5 pb-6">
           <section className="w-full max-w-[342px] rounded-t-2xl bg-surface p-5 shadow-xl">
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-text-primary">Filtro de categorías</h2>
-              </div>
-              <button className="text-sm text-text-secondary" type="button" onClick={() => setIsFilterOpen(false)}>
+              <h2 className="text-xl font-bold text-text-primary">Filtro de categorías</h2>
+              <button
+                className="text-sm text-text-secondary"
+                type="button"
+                onClick={() => setIsFilterOpen(false)}
+              >
                 Cerrar
               </button>
             </div>
@@ -184,13 +200,16 @@ export default function HomePage() {
                   }}
                 >
                   <span className="font-bold text-text-primary">{category}</span>
-                  {selectedCategory === category ? <span className="text-xs text-primary font-bold">Activo</span> : null}
+                  {selectedCategory === category ? (
+                    <span className="text-xs font-bold text-primary">Activo</span>
+                  ) : null}
                 </button>
               ))}
             </div>
           </section>
         </div>
       ) : null}
+
       {toast ? (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
           <Toast message={toast} />
