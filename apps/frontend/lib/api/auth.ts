@@ -1,4 +1,5 @@
 import { apiRequest } from "@/lib/api/client";
+import { saveAuthSession as persistAuthSession } from "@/lib/auth/session";
 
 type AuthUser = {
   id: string;
@@ -13,8 +14,7 @@ type AuthResult = {
 };
 
 export function saveAuthSession(auth: AuthResult) {
-  window.localStorage.setItem("bc-market-token", auth.token);
-  window.localStorage.setItem("bc-market-user", JSON.stringify(auth.user));
+  persistAuthSession(auth);
 }
 
 export function login(email: string, password: string) {

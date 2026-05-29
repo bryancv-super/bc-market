@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { ListCard } from "@/components/cards/list-card";
 import { EmptyState } from "@/components/feedback/empty-state";
-import { ErrorState } from "@/components/feedback/error-state";
 import { SkeletonCard } from "@/components/feedback/skeleton";
 import { Toast } from "@/components/feedback/toast";
 import { AppShell } from "@/components/layout/app-shell";
@@ -22,7 +21,6 @@ function ListsView() {
   const [listName, setListName] = useState("");
   const [toast, setToast] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => setIsLoading(false), 300);
@@ -50,16 +48,11 @@ function ListsView() {
         <Button className="w-full" type="button" variant="outline" onClick={() => setIsCreateOpen(true)}>
           Nueva Lista
         </Button>
-        <Button className="w-full" type="button" variant="outline" onClick={() => setHasError((current) => !current)}>
-          Actualizar
-        </Button>
         {isLoading ? (
           <>
             <SkeletonCard />
             <SkeletonCard />
           </>
-        ) : hasError ? (
-          <ErrorState title="No pudimos cargar tus listas" onAction={() => setHasError(false)} />
         ) : lists.length === 0 ? (
           <EmptyState title="Todavia no tienes listas" actionLabel="Crear lista" onAction={() => setIsCreateOpen(true)} />
         ) : (

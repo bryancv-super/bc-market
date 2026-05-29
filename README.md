@@ -93,6 +93,22 @@ npm run lint --workspace=frontend
 npm run build --workspace=frontend
 ```
 
+## Database Setup
+
+BC Market is prepared for Neon PostgreSQL through Prisma.
+
+```bash
+set DATABASE_URL=postgresql://USER:PASSWORD@HOST/DB?sslmode=require
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:seed
+```
+
+Seeded demo credentials:
+
+- Email: `demo@bcmarket.com`
+- Password: `password123`
+
 Backend smoke checks can be run against:
 
 ```bash
@@ -101,8 +117,16 @@ curl http://localhost:3001/api/products
 curl http://localhost:3001/api/lists
 ```
 
+## Hosting Notes
+
+- Frontend target: Vercel.
+- Database target: Neon PostgreSQL.
+- Backend target: Node-capable hosting while avatar uploads use local filesystem storage.
+- Required frontend variable: `NEXT_PUBLIC_API_URL`.
+- Required backend variables: `DATABASE_URL`, `JWT_SECRET`, `PORT`.
+
 ## Delivery Notes
 
-The MVP prioritizes faithful demo behavior and speed. Backend data is currently mock/in-memory, while `prisma/schema.prisma` matches the documented ERD and is ready for a future PostgreSQL integration phase.
+The MVP now supports PostgreSQL persistence through Prisma. Avatar uploads still use backend local filesystem storage, so backend hosting should provide persistent disk or be paired with object storage before serverless deployment.
 
 Git workflow documentation is available in `docs/git-workflow.md`.
