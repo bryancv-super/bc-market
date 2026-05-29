@@ -32,7 +32,7 @@ export function signup(username: string, email: string, password: string, passwo
 }
 
 export function recoverPassword(email: string) {
-  return apiRequest<{ message: string; resetToken: string }>("/auth/recover-password", {
+  return apiRequest<{ message: string }>("/auth/recover-password", {
     method: "POST",
     body: JSON.stringify({ email }),
   });

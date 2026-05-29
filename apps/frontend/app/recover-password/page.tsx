@@ -10,18 +10,18 @@ import { recoverPassword } from "@/lib/api/auth";
 export default function RecoverPasswordPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const [resetToken, setResetToken] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-    setResetToken("");
+    setSuccessMessage("");
     setIsLoading(true);
 
     try {
       const result = await recoverPassword(email);
-      setResetToken(result.resetToken);
+      setSuccessMessage(result.message);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos enviar el enlace");
     } finally {
@@ -41,9 +41,9 @@ export default function RecoverPasswordPage() {
           value={email}
         />
         {error ? <p className="text-xs text-danger">{error}</p> : null}
-        {resetToken ? (
+        {successMessage ? (
           <p className="rounded-xl bg-primary-soft p-3 text-xs text-text-primary">
-            Enlace generado: /reset-password?token={resetToken}
+            Revisa tu correo para continuar con el restablecimiento de contrasena.
           </p>
         ) : null}
         <Button className="w-full" disabled={isLoading} type="submit">
