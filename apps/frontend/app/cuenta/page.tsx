@@ -1,0 +1,28 @@
+import Link from "next/link";
+import { UserSummaryCard } from "@/components/cards/user-summary-card";
+import { AppShell } from "@/components/layout/app-shell";
+import { Header } from "@/components/layout/header";
+import { Button } from "@/components/ui/button";
+import { mockUser } from "@/lib/mock/data";
+
+export default function ProfilePage() {
+  return (
+    <AppShell className="bg-surface px-8">
+      <Header backHref="/home" title="Perfil" />
+      <section className="mt-16 space-y-10">
+        <UserSummaryCard email={mockUser.email} name={mockUser.name} />
+        <div className="space-y-4">
+          <Button className="w-full" type="button" variant="outline">
+            <Link href="/cuenta/editar">Editar perfil</Link>
+          </Button>
+          <Button className="w-full" type="button">
+            <Link href="/cuenta/cambiar-contrasena">Cambiar contrasena</Link>
+          </Button>
+        </div>
+        <Button className="w-full" type="button" variant="danger-outline">
+          Cerrar sesion
+        </Button>
+      </section>
+    </AppShell>
+  );
+}
