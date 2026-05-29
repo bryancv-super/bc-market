@@ -22,8 +22,8 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}) {
     headers: {
       ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...authHeaders,
-      ...options.headers,
-    },
+      ...((options.headers as Record<string, string>) || {}),
+    } as Record<string, string>,
   });
   const payload = (await response.json().catch(() => ({}))) as ApiResponse<T>;
 
