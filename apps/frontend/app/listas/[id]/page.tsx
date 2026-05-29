@@ -9,12 +9,11 @@ import { AppHeader } from "@/components/layout/app-header";
 import { Header } from "@/components/layout/header";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
-import { getProduct } from "@/lib/mock/data";
 import { useAppState } from "@/lib/mock/store";
 
 export default function ListDetailPage() {
   const params = useParams<{ id: string }>();
-  const { lists, toggleItem } = useAppState();
+  const { lists, products, toggleItem } = useAppState();
   const list = lists.find((item) => item.id === params.id);
 
   return (
@@ -53,14 +52,14 @@ export default function ListDetailPage() {
                 <EmptyState title="Esta lista todavía no tiene productos" actionLabel="Ir al catálogo" />
               ) : (
                 list.items.map((item) => {
-                  const product = getProduct(item.productId);
+                  const product = products.find((currentProduct) => currentProduct.id === item.productId);
                   return (
                     <ProductItemCard
                       key={item.id}
                       checked={item.checked}
-                      name={product.name}
-                      price={product.price}
-                      quantity={`${item.quantity} ${product.unit}`}
+                      name={product?.name ?? "Producto no disponible"}
+                      price={product?.price ?? ""}
+                      quantity={`${item.quantity} ${product?.unit ?? "unidad"}`}
                       onToggle={() => toggleItem(list.id, item.id)}
                     />
                   );

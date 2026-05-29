@@ -11,13 +11,12 @@ import { AppHeader } from "@/components/layout/app-header";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getProduct } from "@/lib/mock/data";
 import { useAppState } from "@/lib/mock/store";
 
 export default function EditListPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { lists, replaceListItems, updateListName, deleteList } = useAppState();
+  const { lists, products, replaceListItems, updateListName, deleteList } = useAppState();
   const list = useMemo(() => lists.find((item) => item.id === params.id), [lists, params.id]);
   const [name, setName] = useState(list?.name ?? "");
   const [draftItems, setDraftItems] = useState(list?.items ?? []);
@@ -87,12 +86,12 @@ export default function EditListPage() {
                 <EmptyState title="No hay productos para editar" />
               ) : (
                 draftItems.map((item) => {
-                  const product = getProduct(item.productId);
+                  const product = products.find((currentProduct) => currentProduct.id === item.productId);
                   return (
                     <EditableItemCard
                       key={item.id}
-                      name={product.name}
-                      price={product.price}
+                      name={product?.name ?? "Producto no disponible"}
+                      price={product?.price ?? ""}
                       quantity={Math.max(item.quantity, 1)}
                       onDecrease={() => updateDraftQuantity(item.id, item.quantity - 1)}
                       onDelete={() => setItemToDelete(item.id)}

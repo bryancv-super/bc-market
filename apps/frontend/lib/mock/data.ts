@@ -89,5 +89,5 @@ export const mockLists: ShoppingList[] = [
 ];
 
 export function getProduct(productId: string) {
-  return mockProducts.find((product) => product.id === productId) ?? mockProducts[0];
+  return mockProducts.find((product) => product.id === productId);
 }
