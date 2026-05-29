@@ -181,6 +181,30 @@ function getUserProfile(userId) {
   return sanitizeUser(user);
 }
 
+function updateUserProfile(userId, payload) {
+  const user = users.get(userId);
+
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  }
+
+  const username = String(payload.username || payload.name || user.username).trim();
+
+  if (!username) {
+    throw createHttpError(400, 'Name is required');
+  }
+
+  user.username = username;
+
+  if (payload.profileImage !== undefined) {
+    user.profileImage = payload.profileImage;
+  }
+
+  user.updatedAt = new Date().toISOString();
+
+  return sanitizeUser(user);
+}
+
 function changePassword(userId, payload) {
   const user = users.get(userId);
 
@@ -214,5 +238,6 @@ module.exports = {
   recoverPassword,
   resetPassword,
   getUserProfile,
+  updateUserProfile,
   changePassword,
 };
