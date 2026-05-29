@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { UserSummaryCard } from "@/components/cards/user-summary-card";
+import { ConfirmationModal } from "@/components/feedback/confirmation-modal";
 import { AppShell } from "@/components/layout/app-shell";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { clearAuthSession, getStoredToken, getStoredUser, StoredUser, updateStor
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<StoredUser | null>(null);
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = getStoredUser();
@@ -62,10 +64,20 @@ export default function ProfilePage() {
             <Link href="/cuenta/cambiar-contrasena">Cambiar contrasena</Link>
           </Button>
         </div>
-        <Button className="w-full" type="button" variant="danger-outline" onClick={handleLogout}>
+        <Button className="w-full" type="button" variant="danger-outline" onClick={() => setIsLogoutOpen(true)}>
           Cerrar sesion
         </Button>
       </section>
+      {isLogoutOpen ? (
+        <ConfirmationModal
+          cancelLabel="Cancelar"
+          confirmLabel="Cerrar sesion"
+          description="Tendras que iniciar sesion de nuevo para acceder a tus listas."
+          title="Cerrar sesion"
+          onCancel={() => setIsLogoutOpen(false)}
+          onConfirm={handleLogout}
+        />
+      ) : null}
     </AppShell>
   );
 }

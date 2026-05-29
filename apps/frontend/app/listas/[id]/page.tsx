@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { ProductItemCard } from "@/components/cards/product-item-card";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { AppShell } from "@/components/layout/app-shell";
+import { AppHeader } from "@/components/layout/app-header";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { getProduct } from "@/lib/mock/data";
@@ -17,7 +18,7 @@ export default function ListDetailPage() {
 
   return (
     <AppShell>
-      <Header showAvatar showBrand />
+      <AppHeader />
       <section className="mt-14">
         {list ? (
           <>

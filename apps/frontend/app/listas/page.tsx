@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/feedback/empty-state";
 import { SkeletonCard } from "@/components/feedback/skeleton";
 import { Toast } from "@/components/feedback/toast";
 import { AppShell } from "@/components/layout/app-shell";
-import { Header } from "@/components/layout/header";
+import { AppHeader } from "@/components/layout/app-header";
 import { PageSection } from "@/components/layout/page-section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,7 +43,7 @@ function ListsView() {
 
   return (
     <AppShell>
-      <Header showAvatar showBrand />
+      <AppHeader />
       <PageSection title="Mis Listas">
         <Button className="w-full" type="button" variant="outline" onClick={() => setIsCreateOpen(true)}>
           Nueva Lista

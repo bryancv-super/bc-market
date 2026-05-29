@@ -44,3 +44,16 @@ export function resetPassword(token: string, password: string, passwordConfirmat
     body: JSON.stringify({ token, password, passwordConfirmation }),
   });
 }
+
+export function changePassword(
+  token: string,
+  currentPassword: string,
+  newPassword: string,
+  passwordConfirmation: string,
+) {
+  return apiRequest<{ message: string }>("/auth/change-password", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ currentPassword, newPassword, passwordConfirmation }),
+  });
+}

@@ -9,6 +9,7 @@ type HeaderProps = {
   backHref?: string;
   showBrand?: boolean;
   showAvatar?: boolean;
+  profileImage?: string | null;
   className?: string;
 };
 
@@ -18,6 +19,7 @@ export function Header({
   backHref,
   showBrand = false,
   showAvatar = false,
+  profileImage,
   className,
 }: HeaderProps) {
   const isAppNav = showBrand || showAvatar;
@@ -50,10 +52,17 @@ export function Header({
       {showAvatar ? (
         <Link
           aria-label="Abrir perfil"
-          className="grid size-10 place-items-center rounded-full bg-border-muted text-text-primary"
+          className="grid size-10 place-items-center overflow-hidden rounded-full bg-border-muted text-text-primary"
           href="/cuenta"
         >
-          <UserRound className="size-6" />
+          {profileImage ? (
+            <span
+              className="size-full bg-cover bg-center"
+              style={{ backgroundImage: `url(${profileImage})` }}
+            />
+          ) : (
+            <UserRound className="size-6" />
+          )}
         </Link>
       ) : null}
     </header>

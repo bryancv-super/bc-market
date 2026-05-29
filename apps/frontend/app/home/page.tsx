@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/feedback/empty-state";
 import { SkeletonCard } from "@/components/feedback/skeleton";
 import { Toast } from "@/components/feedback/toast";
 import { AppShell } from "@/components/layout/app-shell";
-import { Header } from "@/components/layout/header";
+import { AppHeader } from "@/components/layout/app-header";
 import { PageSection } from "@/components/layout/page-section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,7 +80,7 @@ export default function HomePage() {
 
   return (
     <AppShell>
-      <Header showAvatar showBrand />
+      <AppHeader />
       <div className="mt-12 space-y-5">
         <SearchBar
           onChange={(event) => setQuery(event.target.value)}

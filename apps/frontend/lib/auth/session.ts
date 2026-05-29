@@ -12,6 +12,14 @@ function canUseStorage() {
   return typeof window !== "undefined";
 }
 
+function notifySessionUpdated() {
+  if (!canUseStorage()) {
+    return;
+  }
+
+  window.dispatchEvent(new Event("bc-market-session-updated"));
+}
+
 export function getStoredToken() {
   if (!canUseStorage()) {
     return null;
@@ -44,6 +52,7 @@ export function updateStoredUser(user: StoredUser) {
   }
 
   window.localStorage.setItem(USER_KEY, JSON.stringify(user));
+  notifySessionUpdated();
 }
 
 export function saveAuthSession(auth: { token: string; user: StoredUser }) {
@@ -62,6 +71,7 @@ export function clearAuthSession() {
 
   window.localStorage.removeItem(TOKEN_KEY);
   window.localStorage.removeItem(USER_KEY);
+  notifySessionUpdated();
 }
 
 export function isAuthenticated() {

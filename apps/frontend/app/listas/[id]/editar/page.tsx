@@ -7,6 +7,7 @@ import { ConfirmationModal } from "@/components/feedback/confirmation-modal";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { Toast } from "@/components/feedback/toast";
 import { AppShell } from "@/components/layout/app-shell";
+import { AppHeader } from "@/components/layout/app-header";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,10 +17,12 @@ import { useAppState } from "@/lib/mock/store";
 export default function EditListPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { lists, updateItemQuantity, removeItem, updateListName, deleteList } = useAppState();
+  const { lists, replaceListItems, updateListName, deleteList } = useAppState();
   const list = useMemo(() => lists.find((item) => item.id === params.id), [lists, params.id]);
   const [name, setName] = useState(list?.name ?? "");
+  const [draftItems, setDraftItems] = useState(list?.items ?? []);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [isClearingList, setIsClearingList] = useState(false);
   const [isDeletingList, setIsDeletingList] = useState(false);
   const [toast, setToast] = useState("");
 
@@ -34,7 +37,14 @@ export default function EditListPage() {
     }
 
     updateListName(list.id, name.trim());
+    replaceListItems(list.id, draftItems);
     showToast("Cambios guardados");
+  }
+
+  function updateDraftQuantity(itemId: string, quantity: number) {
+    setDraftItems((current) =>
+      current.map((item) => (item.id === itemId ? { ...item, quantity: Math.max(1, quantity) } : item)),
+    );
   }
 
   function handleDeleteItem() {
@@ -42,9 +52,15 @@ export default function EditListPage() {
       return;
     }
 
-    removeItem(list.id, itemToDelete);
+    setDraftItems((current) => current.filter((item) => item.id !== itemToDelete));
     setItemToDelete(null);
-    showToast("Producto eliminado");
+    showToast("Producto eliminado de los cambios pendientes");
+  }
+
+  function handleClearList() {
+    setDraftItems([]);
+    setIsClearingList(false);
+    showToast("Lista limpiada en cambios pendientes");
   }
 
   function handleDeleteList() {
@@ -58,7 +74,7 @@ export default function EditListPage() {
 
   return (
     <AppShell>
-      <Header showAvatar showBrand />
+      <AppHeader />
       <section className="mt-14">
         {list ? (
           <>
@@ -67,10 +83,10 @@ export default function EditListPage() {
               <Input label="Nombre de la lista" onChange={(event) => setName(event.target.value)} value={name} />
             </div>
             <div className="mt-8 space-y-5">
-              {list.items.length === 0 ? (
+              {draftItems.length === 0 ? (
                 <EmptyState title="No hay productos para editar" />
               ) : (
-                list.items.map((item) => {
+                draftItems.map((item) => {
                   const product = getProduct(item.productId);
                   return (
                     <EditableItemCard
@@ -78,19 +94,30 @@ export default function EditListPage() {
                       name={product.name}
                       price={product.price}
                       quantity={Math.max(item.quantity, 1)}
-                      onDecrease={() => updateItemQuantity(list.id, item.id, item.quantity - 1)}
+                      onDecrease={() => updateDraftQuantity(item.id, item.quantity - 1)}
                       onDelete={() => setItemToDelete(item.id)}
-                      onIncrease={() => updateItemQuantity(list.id, item.id, item.quantity + 1)}
+                      onIncrease={() => updateDraftQuantity(item.id, item.quantity + 1)}
                     />
                   );
                 })
               )}
             </div>
-            <div className="mt-8 space-y-3 text-center">
-              <Button disabled={!name.trim()} type="button" onClick={handleSave}>
+            <div className="mt-8 border-t border-border-muted pt-6 text-center">
+              <Button className="w-full" disabled={!name.trim()} type="button" onClick={handleSave}>
                 Guardar Cambios
               </Button>
-              <Button type="button" variant="danger-outline" onClick={() => setIsDeletingList(true)}>
+            </div>
+            <div className="mt-8 space-y-3 border-t border-danger-soft pt-6 text-center">
+              <Button
+                className="w-full"
+                disabled={draftItems.length === 0}
+                type="button"
+                variant="danger-outline"
+                onClick={() => setIsClearingList(true)}
+              >
+                Limpiar Lista
+              </Button>
+              <Button className="w-full" type="button" variant="danger-outline" onClick={() => setIsDeletingList(true)}>
                 Eliminar Lista
               </Button>
             </div>
@@ -107,6 +134,16 @@ export default function EditListPage() {
           title="Eliminar producto"
           onCancel={() => setItemToDelete(null)}
           onConfirm={handleDeleteItem}
+        />
+      ) : null}
+      {isClearingList ? (
+        <ConfirmationModal
+          cancelLabel="Cancelar"
+          confirmLabel="Limpiar"
+          description="La lista quedara vacia cuando guardes los cambios."
+          title="Limpiar lista"
+          onCancel={() => setIsClearingList(false)}
+          onConfirm={handleClearList}
         />
       ) : null}
       {isDeletingList ? (

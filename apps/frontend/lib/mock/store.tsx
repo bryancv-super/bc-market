@@ -11,7 +11,9 @@ type AppState = {
   addProductToList: (listId: string, productId: string) => void;
   toggleItem: (listId: string, itemId: string) => void;
   updateItemQuantity: (listId: string, itemId: string, quantity: number) => void;
+  replaceListItems: (listId: string, items: ShoppingList["items"]) => void;
   removeItem: (listId: string, itemId: string) => void;
+  clearList: (listId: string) => void;
   updateListName: (listId: string, name: string) => void;
   deleteList: (listId: string) => void;
 };
@@ -92,12 +94,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       );
     }
 
+    function replaceListItems(listId: string, items: ShoppingList["items"]) {
+      setLists((current) => current.map((list) => (list.id === listId ? { ...list, items } : list)));
+    }
+
     function removeItem(listId: string, itemId: string) {
       setLists((current) =>
         current.map((list) =>
           list.id === listId ? { ...list, items: list.items.filter((item) => item.id !== itemId) } : list,
         ),
       );
+    }
+
+    function clearList(listId: string) {
+      setLists((current) => current.map((list) => (list.id === listId ? { ...list, items: [] } : list)));
     }
 
     function updateListName(listId: string, name: string) {
@@ -116,7 +126,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       addProductToList,
       toggleItem,
       updateItemQuantity,
+      replaceListItems,
       removeItem,
+      clearList,
       updateListName,
       deleteList,
     };
