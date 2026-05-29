@@ -7,7 +7,8 @@ import { UserSummaryCard } from "@/components/cards/user-summary-card";
 import { ConfirmationModal } from "@/components/feedback/confirmation-modal";
 import { AppShell } from "@/components/layout/app-shell";
 import { Header } from "@/components/layout/header";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 import { fetchProfile } from "@/lib/api/market";
 import { clearAuthSession, getStoredToken, getStoredUser, StoredUser, updateStoredUser } from "@/lib/auth/session";
 
@@ -42,6 +43,7 @@ export default function ProfilePage() {
       });
   }, [router]);
 
+
   function handleLogout() {
     clearAuthSession();
     router.replace("/login");
@@ -57,23 +59,35 @@ export default function ProfilePage() {
           profileImage={user?.profileImage}
         />
         <div className="space-y-4">
-          <Button className="w-full" type="button" variant="outline">
-            <Link href="/cuenta/editar">Editar perfil</Link>
-          </Button>
-          <Button className="w-full" type="button">
-            <Link href="/cuenta/cambiar-contrasena">Cambiar contrasena</Link>
-          </Button>
+          <Link
+            className={cn(
+              "inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed",
+              buttonVariants.outline,
+            )}
+            href="/cuenta/editar"
+          >
+            Editar perfil
+          </Link>
+          <Link
+            className={cn(
+              "inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed",
+              buttonVariants.primary,
+            )}
+            href="/cuenta/cambiar-contrasena"
+          >
+            Cambiar contraseña
+          </Link>
         </div>
         <Button className="w-full" type="button" variant="danger-outline" onClick={() => setIsLogoutOpen(true)}>
-          Cerrar sesion
+          Cerrar sesión
         </Button>
       </section>
       {isLogoutOpen ? (
         <ConfirmationModal
           cancelLabel="Cancelar"
-          confirmLabel="Cerrar sesion"
-          description="Tendras que iniciar sesion de nuevo para acceder a tus listas."
-          title="Cerrar sesion"
+          confirmLabel="Cerrar sesión"
+          description="Tendrás que iniciar sesión de nuevo para acceder a tus listas."
+          title="Cerrar sesión"
           onCancel={() => setIsLogoutOpen(false)}
           onConfirm={handleLogout}
         />

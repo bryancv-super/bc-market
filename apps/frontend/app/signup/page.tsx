@@ -38,7 +38,7 @@ export default function SignupPage() {
       <form className="space-y-5" onSubmit={handleSubmit}>
         <Input label="Nombre completo" onChange={(event) => setUsername(event.target.value)} required value={username} />
         <Input
-          label="Correo electronico"
+          label="Correo electrónico"
           onChange={(event) => setEmail(event.target.value)}
           placeholder="ejemplo@correo.com"
           required
@@ -46,7 +46,7 @@ export default function SignupPage() {
           value={email}
         />
         <Input
-          label="Contrasena"
+          label="Contraseña"
           minLength={8}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="****************"
@@ -55,7 +55,7 @@ export default function SignupPage() {
           value={password}
         />
         <Input
-          label="Confirmar contrasena"
+          label="Confirmar contraseña"
           minLength={8}
           onChange={(event) => setPasswordConfirmation(event.target.value)}
           placeholder="****************"
@@ -71,7 +71,7 @@ export default function SignupPage() {
       <p className="mt-9 text-center text-sm text-text-primary">
         ¿Ya tienes cuenta?{" "}
         <Link className="text-primary" href="/login">
-          Inicia Sesion
+          Inicia sesión
         </Link>
       </p>
     </AuthShell>

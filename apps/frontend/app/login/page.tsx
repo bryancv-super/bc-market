@@ -25,17 +25,17 @@ export default function LoginPage() {
       saveAuthSession(auth);
       router.push("/home");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No pudimos iniciar sesion");
+      setError(err instanceof Error ? err.message : "No pudimos iniciar sesión");
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <AuthShell title="Inicia sesion" subtitle="Accede a tu cuenta para ver tus listas">
+    <AuthShell title="Inicia sesión" subtitle="Accede a tu cuenta para ver tus listas">
       <form className="space-y-6" onSubmit={handleSubmit}>
         <Input
-          label="Correo electronico"
+          label="Correo electrónico"
           onChange={(event) => setEmail(event.target.value)}
           placeholder="ejemplo@correo.com"
           required
@@ -43,7 +43,7 @@ export default function LoginPage() {
           value={email}
         />
         <Input
-          label="Contrasena"
+          label="Contraseña"
           onChange={(event) => setPassword(event.target.value)}
           placeholder="**********************"
           required
@@ -53,17 +53,17 @@ export default function LoginPage() {
         {error ? <p className="text-xs text-danger">{error}</p> : null}
         <div className="text-right">
           <Link className="text-xs text-primary" href="/recover-password">
-            ¿Olvidaste tu contrasena?
+            ¿Olvidaste tu contraseña?
           </Link>
         </div>
         <Button className="w-full" disabled={isLoading} type="submit">
-          {isLoading ? "Iniciando..." : "Iniciar sesion"}
+          {isLoading ? "Iniciando..." : "Iniciar sesión"}
         </Button>
       </form>
       <p className="mt-9 text-center text-sm text-text-primary">
         ¿No tienes cuenta?{" "}
         <Link className="text-primary" href="/signup">
-          Registrate
+          Regístrate
         </Link>
       </p>
     </AuthShell>

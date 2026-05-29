@@ -9,11 +9,12 @@ import { Toast } from "@/components/feedback/toast";
 import { AppShell } from "@/components/layout/app-shell";
 import { AppHeader } from "@/components/layout/app-header";
 import { PageSection } from "@/components/layout/page-section";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Product } from "@/lib/mock/data";
 import { useAppState } from "@/lib/mock/store";
+import { cn } from "@/lib/cn";
 
 export default function HomePage() {
   const { products, lists, addProductToList, createList } = useAppState();
@@ -21,6 +22,7 @@ export default function HomePage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [newListName, setNewListName] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [toast, setToast] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -46,9 +48,7 @@ export default function HomePage() {
   const categories = useMemo(() => ["Todos", ...Array.from(new Set(products.map((product) => product.category)))], [products]);
 
   function handleFilterClick() {
-    const currentIndex = categories.indexOf(selectedCategory);
-    const nextCategory = categories[(currentIndex + 1) % categories.length];
-    setSelectedCategory(nextCategory);
+    setIsFilterOpen(true);
   }
 
   function showToast(message: string) {
@@ -87,10 +87,18 @@ export default function HomePage() {
           onFilterClick={handleFilterClick}
           value={query}
         />
-        <p className="text-xs text-text-secondary">Categoria: {selectedCategory}</p>
-        <Button className="w-full" type="button">
-          <Link href="/listas">Mis Listas</Link>
-        </Button>
+        {selectedCategory !== "Todos" ? (
+          <p className="text-xs text-text-secondary">Filtro activo: {selectedCategory}</p>
+        ) : null}
+        <Link
+          className={cn(
+            "inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed",
+            buttonVariants.primary,
+          )}
+          href="/listas"
+        >
+          Mis Listas
+        </Link>
       </div>
       <PageSection title="Productos">
         {isLoading ? (
@@ -100,7 +108,7 @@ export default function HomePage() {
             <SkeletonCard />
           </>
         ) : filteredProducts.length === 0 ? (
-          <EmptyState icon="search" title="No encontramos productos para tu busqueda" />
+          <EmptyState icon="search" title="No encontramos productos para tu búsqueda" />
         ) : (
           filteredProducts.map((product) => (
             <ProductCard
@@ -149,6 +157,36 @@ export default function HomePage() {
               <Button className="w-full" disabled={!newListName.trim()} type="button" onClick={handleCreateAndAdd}>
                 Crear y agregar
               </Button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+      {isFilterOpen ? (
+        <div className="fixed inset-0 z-50 grid place-items-end bg-text-primary/20 px-5 pb-6">
+          <section className="w-full max-w-[342px] rounded-t-2xl bg-surface p-5 shadow-xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-text-primary">Filtro de categorías</h2>
+              </div>
+              <button className="text-sm text-text-secondary" type="button" onClick={() => setIsFilterOpen(false)}>
+                Cerrar
+              </button>
+            </div>
+            <div className="mt-5 space-y-3">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  className="flex min-h-14 w-full items-center justify-between rounded-xl border border-border-muted bg-surface px-4 text-left"
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory(category);
+                    setIsFilterOpen(false);
+                  }}
+                >
+                  <span className="font-bold text-text-primary">{category}</span>
+                  {selectedCategory === category ? <span className="text-xs text-primary font-bold">Activo</span> : null}
+                </button>
+              ))}
             </div>
           </section>
         </div>

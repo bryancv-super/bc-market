@@ -7,7 +7,8 @@ import { EmptyState } from "@/components/feedback/empty-state";
 import { AppShell } from "@/components/layout/app-shell";
 import { AppHeader } from "@/components/layout/app-header";
 import { Header } from "@/components/layout/header";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 import { getProduct } from "@/lib/mock/data";
 import { useAppState } from "@/lib/mock/store";
 
@@ -28,16 +29,28 @@ export default function ListDetailPage() {
               title={list.name}
             />
             <div className="mt-10 flex gap-3">
-              <Button className="flex-1" type="button">
-                <Link href="/home">Agregar Producto</Link>
-              </Button>
-              <Button className="flex-1" type="button" variant="outline">
-                <Link href={`/listas/${list.id}/editar`}>Editar Lista</Link>
-              </Button>
+              <Link
+                className={cn(
+                  "inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed",
+                  buttonVariants.primary,
+                )}
+                href="/home"
+              >
+                Agregar Producto
+              </Link>
+              <Link
+                className={cn(
+                  "inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed",
+                  buttonVariants.outline,
+                )}
+                href={`/listas/${list.id}/editar`}
+              >
+                Editar Lista
+              </Link>
             </div>
             <div className="mt-10 space-y-5">
               {list.items.length === 0 ? (
-                <EmptyState title="Esta lista todavia no tiene productos" actionLabel="Ir al catalogo" />
+                <EmptyState title="Esta lista todavía no tiene productos" actionLabel="Ir al catálogo" />
               ) : (
                 list.items.map((item) => {
                   const product = getProduct(item.productId);

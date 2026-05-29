@@ -85,6 +85,24 @@ export async function createList(payload: Record<string, unknown>, authUser: Aut
   return serializeList(list);
 }
 
+export async function updateList(id: string, payload: Record<string, unknown>, authUser: AuthUser | null) {
+  const prisma = getPrisma();
+  const list = await findOwnedList(id, authUser);
+  const name = String(payload.name || "").trim();
+
+  if (!name) {
+    throw createHttpError(400, "List name is required");
+  }
+
+  const updatedList = await prisma.shoppingList.update({
+    where: { id: list.id },
+    data: { name },
+    include: { items: true },
+  });
+
+  return serializeList(updatedList);
+}
+
 export async function addItem(listId: string, payload: Record<string, unknown>, authUser: AuthUser | null) {
   const prisma = getPrisma();
   const list = await findOwnedList(listId, authUser);

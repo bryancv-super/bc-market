@@ -54,7 +54,7 @@ function ListsView() {
             <SkeletonCard />
           </>
         ) : lists.length === 0 ? (
-          <EmptyState title="Todavia no tienes listas" actionLabel="Crear lista" onAction={() => setIsCreateOpen(true)} />
+          <EmptyState title="Todavía no tienes listas" actionLabel="Crear lista" onAction={() => setIsCreateOpen(true)} />
         ) : (
           lists.map((list) => (
             <ListCard
@@ -69,7 +69,7 @@ function ListsView() {
       </PageSection>
       <div className="mt-8 text-center">
         <Link className="text-xs text-primary" href="/home">
-          Volver al catalogo
+          Volver al catálogo
         </Link>
       </div>
       {isCreateOpen ? (

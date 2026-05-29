@@ -39,7 +39,7 @@ export default function ChangePasswordPage() {
       setPasswordConfirmation("");
       setSuccess("Contrasena actualizada correctamente");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No pudimos actualizar la contrasena");
+      setError(err instanceof Error ? err.message : "No pudimos actualizar la contraseña");
     } finally {
       setIsLoading(false);
     }
@@ -47,10 +47,10 @@ export default function ChangePasswordPage() {
 
   return (
     <AppShell className="bg-surface px-8">
-      <Header backHref="/cuenta" title="Cambiar contrasena" />
+      <Header backHref="/cuenta" title="Cambiar contraseña" />
       <form className="mt-16 space-y-10" onSubmit={handleSubmit}>
         <Input
-          label="Contrasena actual"
+          label="Contraseña actual"
           onChange={(event) => setCurrentPassword(event.target.value)}
           placeholder="**********************"
           required
@@ -58,7 +58,7 @@ export default function ChangePasswordPage() {
           value={currentPassword}
         />
         <Input
-          label="Nueva contrasena"
+          label="Nueva contraseña"
           minLength={8}
           onChange={(event) => setNewPassword(event.target.value)}
           placeholder="**********************"
@@ -67,7 +67,7 @@ export default function ChangePasswordPage() {
           value={newPassword}
         />
         <Input
-          label="Confirmar contrasena"
+          label="Confirmar contraseña"
           minLength={8}
           onChange={(event) => setPasswordConfirmation(event.target.value)}
           placeholder="**********************"
@@ -78,7 +78,7 @@ export default function ChangePasswordPage() {
         {error ? <p className="text-xs text-danger">{error}</p> : null}
         {success ? <p className="text-xs text-primary-dark">{success}</p> : null}
         <Button className="w-full" disabled={isLoading} type="submit">
-          {isLoading ? "Actualizando..." : "Actualizar contrasena"}
+          {isLoading ? "Actualizando..." : "Actualizar contraseña"}
         </Button>
       </form>
     </AppShell>

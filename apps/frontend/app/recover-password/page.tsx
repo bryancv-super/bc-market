@@ -30,7 +30,7 @@ export default function RecoverPasswordPage() {
   }
 
   return (
-    <AuthShell title="Recuperar contrasena" subtitle="Ingresa tu correo para recibir el enlace de restablecimiento">
+    <AuthShell title="Recuperar contraseña" subtitle="Ingresa tu correo para recibir el enlace de restablecimiento">
       <form className="space-y-7" onSubmit={handleSubmit}>
         <Input
           label="Correo"
@@ -43,7 +43,7 @@ export default function RecoverPasswordPage() {
         {error ? <p className="text-xs text-danger">{error}</p> : null}
         {successMessage ? (
           <p className="rounded-xl bg-primary-soft p-3 text-xs text-text-primary">
-            Revisa tu correo para continuar con el restablecimiento de contrasena.
+            Revisa tu correo para continuar con el restablecimiento de contraseña.
           </p>
         ) : null}
         <Button className="w-full" disabled={isLoading} type="submit">
@@ -52,7 +52,7 @@ export default function RecoverPasswordPage() {
       </form>
       <div className="mt-9 text-center">
         <Link className="text-xs text-primary" href="/login">
-          Volver al inicio de sesion
+          Volver al inicio de sesión
         </Link>
       </div>
     </AuthShell>

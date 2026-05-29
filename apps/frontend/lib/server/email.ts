@@ -11,19 +11,19 @@ export async function sendPasswordRecoveryEmail(to: string, resetUrl: string) {
   await resend.emails.send({
     from,
     to,
-    subject: "Restablece tu contrasena de BC Market",
+    subject: "Restablece tu contraseña de BC Market",
     html: `
       <div style="font-family: Arial, sans-serif; color: #0f172a; line-height: 1.5;">
-        <h1 style="font-size: 20px;">Restablece tu contrasena</h1>
-        <p>Recibimos una solicitud para cambiar la contrasena de tu cuenta BC Market.</p>
+        <h1 style="font-size: 20px;">Restablece tu contraseña</h1>
+        <p>Recibimos una solicitud para cambiar la contraseña de tu cuenta BC Market.</p>
         <p>
           <a href="${resetUrl}" style="display:inline-block;background:#16a34a;color:#ffffff;padding:12px 16px;border-radius:8px;text-decoration:none;">
-            Cambiar contrasena
+            Cambiar contraseña
           </a>
         </p>
         <p>Este enlace vence en 30 minutos. Si no solicitaste este cambio, puedes ignorar este correo.</p>
       </div>
     `,
-    text: `Restablece tu contrasena de BC Market: ${resetUrl}`,
+    text: `Restablece tu contraseña de BC Market: ${resetUrl}`,
   });
 }

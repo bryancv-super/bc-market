@@ -50,16 +50,43 @@ export function fetchLists() {
 }
 
 export function createRemoteList(name: string) {
-  return withMockFallback(
-    async () =>
-      (
-        await apiRequest<ListResponse>("/lists", {
-          method: "POST",
-          body: JSON.stringify({ name }),
-        })
-      ).list,
-    { id: `${Date.now()}`, name, items: [] },
-  );
+  return apiRequest<ListResponse>("/lists", {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  }).then((res) => res.list);
+}
+
+export function updateRemoteListName(listId: string, name: string) {
+  return apiRequest<ListResponse>(`/lists/${listId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ name }),
+  }).then((res) => res.list);
+}
+
+export function deleteRemoteList(listId: string) {
+  return apiRequest<void>(`/lists/${listId}`, {
+    method: "DELETE",
+  });
+}
+
+export function addItemToList(listId: string, productId: string) {
+  return apiRequest<ListResponse>(`/lists/${listId}/items`, {
+    method: "POST",
+    body: JSON.stringify({ productId, quantity: 1, checked: false }),
+  }).then((res) => res.list);
+}
+
+export function updateListItem(listId: string, itemId: string, data: { quantity?: number; checked?: boolean }) {
+  return apiRequest<ListResponse>(`/lists/${listId}/items/${itemId}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  }).then((res) => res.list);
+}
+
+export function removeListItem(listId: string, itemId: string) {
+  return apiRequest<ListResponse>(`/lists/${listId}/items/${itemId}`, {
+    method: "DELETE",
+  }).then((res) => res.list);
 }
 
 export function fetchProfile(token?: string) {

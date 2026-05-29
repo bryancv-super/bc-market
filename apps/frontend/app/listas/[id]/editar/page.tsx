@@ -130,7 +130,7 @@ export default function EditListPage() {
         <ConfirmationModal
           cancelLabel="Cancelar"
           confirmLabel="Eliminar"
-          description="Este producto saldra de la lista."
+          description="Este producto saldrá de la lista."
           title="Eliminar producto"
           onCancel={() => setItemToDelete(null)}
           onConfirm={handleDeleteItem}
@@ -140,7 +140,7 @@ export default function EditListPage() {
         <ConfirmationModal
           cancelLabel="Cancelar"
           confirmLabel="Limpiar"
-          description="La lista quedara vacia cuando guardes los cambios."
+          description="La lista quedará vacía cuando guardes los cambios."
           title="Limpiar lista"
           onCancel={() => setIsClearingList(false)}
           onConfirm={handleClearList}
@@ -150,7 +150,7 @@ export default function EditListPage() {
         <ConfirmationModal
           cancelLabel="Cancelar"
           confirmLabel="Eliminar"
-          description="Esta accion eliminara la lista completa."
+          description="Esta acción eliminará la lista completa."
           title="Eliminar lista"
           onCancel={() => setIsDeletingList(false)}
           onConfirm={handleDeleteList}
