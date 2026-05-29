@@ -16,6 +16,24 @@ import { Product } from "@/lib/mock/data";
 import { useAppState } from "@/lib/mock/store";
 import { cn } from "@/lib/cn";
 
+// Definimos los colores aquí para poder usarlos tanto en el filtro
+// como en el ProductCard. Si en el futuro quieres compartirlos con
+// más componentes, puedes moverlos a lib/category-colors.ts.
+const categoryColors: Record<string, { border: string; bg: string; text: string }> = {
+  Frutas:    { border: "#fb923c", bg: "#ffedd5", text: "#c2410c" },
+  Vegetales: { border: "#22c55e", bg: "#dcfce7", text: "#15803d" },
+  Lácteos:   { border: "#60a5fa", bg: "#dbeafe", text: "#1d4ed8" },
+  Carnes:    { border: "#f87171", bg: "#fee2e2", text: "#b91c1c" },
+  Panadería: { border: "#f59e0b", bg: "#fef3c7", text: "#b45309" },
+  Despensa:  { border: "#84cc16", bg: "#ecfccb", text: "#4d7c0f" },
+  Básicos:   { border: "#94a3b8", bg: "#e2e8f0", text: "#334155" },
+  Bebidas:   { border: "#22d3ee", bg: "#cffafe", text: "#0e7490" },
+  Limpieza:  { border: "#8b5cf6", bg: "#ede9fe", text: "#6d28d9" },
+};
+
+// Colores neutros para la opción especial "Todos"
+const todosColors = { border: "#e6e7ea", bg: "#f8fafc", text: "#0f172a" };
+
 export default function HomePage() {
   const { products, lists, addProductToList, createList } = useAppState();
   const [query, setQuery] = useState("");
@@ -61,8 +79,6 @@ export default function HomePage() {
     showToast("Producto agregado a la lista");
   }
 
-  // Ahora "Crear lista" solo crea la lista sin intentar agregar el producto.
-  // El usuario puede luego abrir la lista y agregar desde el catálogo.
   function handleCreateList() {
     if (!newListName.trim()) return;
     createList(newListName.trim());
@@ -134,7 +150,6 @@ export default function HomePage() {
               </button>
             </div>
 
-            {/* Listas existentes */}
             <div className="mt-5 space-y-3">
               {lists.length === 0 ? (
                 <EmptyState title="No tienes listas creadas" />
@@ -153,7 +168,6 @@ export default function HomePage() {
               )}
             </div>
 
-            {/* Crear nueva lista — solo crea, no intenta agregar */}
             <div className="mt-5 space-y-3 border-t border-border-muted pt-5">
               <Input
                 label="Nueva lista"
@@ -174,7 +188,7 @@ export default function HomePage() {
         </div>
       ) : null}
 
-      {/* Panel: filtro de categorías */}
+      {/* Panel: filtro de categorías con colores por categoría */}
       {isFilterOpen ? (
         <div className="fixed inset-0 z-50 grid place-items-end bg-text-primary/20 px-5 pb-6">
           <section className="w-full max-w-[342px] rounded-t-2xl bg-surface p-5 shadow-xl">
@@ -188,23 +202,56 @@ export default function HomePage() {
                 Cerrar
               </button>
             </div>
+
             <div className="mt-5 space-y-3">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  className="flex min-h-14 w-full items-center justify-between rounded-xl border border-border-muted bg-surface px-4 text-left"
-                  type="button"
-                  onClick={() => {
-                    setSelectedCategory(category);
-                    setIsFilterOpen(false);
-                  }}
-                >
-                  <span className="font-bold text-text-primary">{category}</span>
-                  {selectedCategory === category ? (
-                    <span className="text-xs font-bold text-primary">Activo</span>
-                  ) : null}
-                </button>
-              ))}
+              {categories.map((category) => {
+                // Obtenemos los colores para esta categoría.
+                // "Todos" usa colores neutros ya que no representa una categoría real.
+                const colors = category === "Todos"
+                  ? todosColors
+                  : (categoryColors[category] ?? todosColors);
+
+                const isActive = selectedCategory === category;
+
+                return (
+                  <button
+                    key={category}
+                    className="flex min-h-14 w-full items-center justify-between rounded-xl border px-4 text-left transition-opacity"
+                    // Aplicamos el color de la categoría al borde y fondo del botón.
+                    // Cuando está activo, usamos el fondo de color completo;
+                    // cuando no, mantenemos el fondo blanco pero conservamos el borde coloreado.
+                    style={{
+                      borderColor: colors.border,
+                      backgroundColor: isActive ? colors.bg : "#ffffff",
+                    }}
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      setIsFilterOpen(false);
+                    }}
+                  >
+                    <span
+                      className="font-bold"
+                      // El texto adopta el color de la categoría
+                      style={{ color: colors.text }}
+                    >
+                      {category}
+                    </span>
+                    {isActive ? (
+                      <span
+                        className="rounded-full px-2 py-0.5 text-xs font-bold"
+                        // El badge "Activo" usa el color de fondo intenso para destacar
+                        style={{
+                          backgroundColor: colors.border,
+                          color: "#ffffff",
+                        }}
+                      >
+                        Activo
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
             </div>
           </section>
         </div>
