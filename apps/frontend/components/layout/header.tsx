@@ -9,6 +9,7 @@ type HeaderProps = {
   backHref?: string;
   showBrand?: boolean;
   showAvatar?: boolean;
+  profileImage?: string | null;
   className?: string;
 };
 
@@ -18,11 +19,24 @@ export function Header({
   backHref,
   showBrand = false,
   showAvatar = false,
+  profileImage,
   className,
 }: HeaderProps) {
+  const isAppNav = showBrand || showAvatar;
+
   return (
-    <header className={cn("flex items-center justify-between gap-4", className)}>
-      {showBrand ? <BrandLogo /> : null}
+    <header
+      className={cn(
+        "flex items-center justify-between gap-4",
+        isAppNav && "sticky top-0 z-40 -mx-8 bg-surface-muted px-8 py-3",
+        className,
+      )}
+    >
+      {showBrand ? (
+        <Link aria-label="Ir al inicio" href="/home">
+          <BrandLogo />
+        </Link>
+      ) : null}
       {backHref ? (
         <Link className="inline-flex items-center gap-2 text-base text-text-primary" href={backHref}>
           <ArrowLeft className="size-5" />
@@ -38,10 +52,17 @@ export function Header({
       {showAvatar ? (
         <Link
           aria-label="Abrir perfil"
-          className="grid size-10 place-items-center rounded-full bg-border-muted text-text-primary"
+          className="grid size-10 place-items-center overflow-hidden rounded-full bg-border-muted text-text-primary"
           href="/cuenta"
         >
-          <UserRound className="size-6" />
+          {profileImage ? (
+            <span
+              className="size-full bg-cover bg-center"
+              style={{ backgroundImage: `url(${profileImage})` }}
+            />
+          ) : (
+            <UserRound className="size-6" />
+          )}
         </Link>
       ) : null}
     </header>

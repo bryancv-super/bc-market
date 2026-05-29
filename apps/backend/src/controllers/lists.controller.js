@@ -1,56 +1,60 @@
 const listsService = require('../services/lists.service');
 
-function getLists(req, res) {
-  res.json({ success: true, data: { lists: listsService.getLists() } });
-}
-
-function getList(req, res, next) {
+async function getLists(req, res, next) {
   try {
-    res.json({ success: true, data: { list: listsService.getList(req.params.id) } });
+    res.json({ success: true, data: { lists: await listsService.getLists(req.user) } });
   } catch (error) {
     next(error);
   }
 }
 
-function createList(req, res, next) {
+async function getList(req, res, next) {
   try {
-    const list = listsService.createList(req.body);
+    res.json({ success: true, data: { list: await listsService.getList(req.params.id, req.user) } });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function createList(req, res, next) {
+  try {
+    const list = await listsService.createList(req.body, req.user);
     res.status(201).json({ success: true, data: { list } });
   } catch (error) {
     next(error);
   }
 }
 
-function addItem(req, res, next) {
+async function addItem(req, res, next) {
   try {
-    const list = listsService.addItem(req.params.id, req.body);
+    const list = await listsService.addItem(req.params.id, req.body, req.user);
     res.json({ success: true, data: { list } });
   } catch (error) {
     next(error);
   }
 }
 
-function updateItem(req, res, next) {
+async function updateItem(req, res, next) {
   try {
-    const list = listsService.updateItem(req.params.id, req.params.itemId, req.body);
+    const list = await listsService.updateItem(req.params.id, req.params.itemId, req.body, req.user);
     res.json({ success: true, data: { list } });
   } catch (error) {
     next(error);
   }
 }
 
-function removeItem(req, res, next) {
+async function removeItem(req, res, next) {
   try {
-    const list = listsService.removeItem(req.params.id, req.params.itemId);
+    const list = await listsService.removeItem(req.params.id, req.params.itemId, req.user);
     res.json({ success: true, data: { list } });
   } catch (error) {
     next(error);
   }
 }
 
-function deleteList(req, res, next) {
+async function deleteList(req, res, next) {
   try {
-    listsService.deleteList(req.params.id);
+    await listsService.deleteList(req.params.id, req.user);
     res.json({ success: true, data: { message: 'List deleted' } });
   } catch (error) {
     next(error);

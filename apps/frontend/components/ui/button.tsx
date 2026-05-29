@@ -8,7 +8,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   icon?: ReactNode;
 };
 
-const variants: Record<ButtonVariant, string> = {
+export const buttonVariants: Record<ButtonVariant, string> = {
   primary: "bg-primary text-white shadow-md active:bg-primary-soft active:text-text-primary",
   outline:
     "border border-primary bg-surface text-primary active:border-primary-soft active:bg-text-primary active:text-primary-soft",
@@ -31,7 +31,7 @@ export function Button({
     <button
       className={cn(
         "inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed",
-        variants[resolvedVariant],
+        buttonVariants[resolvedVariant],
         className,
       )}
       disabled={disabled}

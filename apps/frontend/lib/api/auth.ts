@@ -1,4 +1,5 @@
 import { apiRequest } from "@/lib/api/client";
+import { saveAuthSession as persistAuthSession } from "@/lib/auth/session";
 
 type AuthUser = {
   id: string;
@@ -13,8 +14,7 @@ type AuthResult = {
 };
 
 export function saveAuthSession(auth: AuthResult) {
-  window.localStorage.setItem("bc-market-token", auth.token);
-  window.localStorage.setItem("bc-market-user", JSON.stringify(auth.user));
+  persistAuthSession(auth);
 }
 
 export function login(email: string, password: string) {
@@ -32,7 +32,7 @@ export function signup(username: string, email: string, password: string, passwo
 }
 
 export function recoverPassword(email: string) {
-  return apiRequest<{ message: string; resetToken: string }>("/auth/recover-password", {
+  return apiRequest<{ message: string }>("/auth/recover-password", {
     method: "POST",
     body: JSON.stringify({ email }),
   });
@@ -42,5 +42,18 @@ export function resetPassword(token: string, password: string, passwordConfirmat
   return apiRequest<{ message: string }>("/auth/reset-password", {
     method: "POST",
     body: JSON.stringify({ token, password, passwordConfirmation }),
+  });
+}
+
+export function changePassword(
+  token: string,
+  currentPassword: string,
+  newPassword: string,
+  passwordConfirmation: string,
+) {
+  return apiRequest<{ message: string }>("/auth/change-password", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ currentPassword, newPassword, passwordConfirmation }),
   });
 }

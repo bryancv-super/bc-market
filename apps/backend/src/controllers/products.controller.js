@@ -1,17 +1,21 @@
 const productsService = require('../services/products.service');
 
-function getProducts(req, res) {
-  const products = productsService.getProducts({
-    search: req.query.search,
-    category: req.query.category,
-  });
+async function getProducts(req, res, next) {
+  try {
+    const products = await productsService.getProducts({
+      search: req.query.search,
+      category: req.query.category,
+    });
 
-  res.json({ success: true, data: { products } });
+    res.json({ success: true, data: { products } });
+  } catch (error) {
+    next(error);
+  }
 }
 
-function getProduct(req, res, next) {
+async function getProduct(req, res, next) {
   try {
-    res.json({ success: true, data: { product: productsService.getProduct(req.params.id) } });
+    res.json({ success: true, data: { product: await productsService.getProduct(req.params.id) } });
   } catch (error) {
     next(error);
   }

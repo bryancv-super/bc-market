@@ -1,13 +1,43 @@
-const { randomUUID } = require('crypto');
-const { lists, products } = require('../data/mock-data');
+const { getPrisma } = require('../lib/prisma');
 const { createHttpError } = require('../utils/http-error');
 
-function getLists() {
-  return lists;
+const DEMO_EMAIL = 'demo@bcmarket.com';
+
+async function getUserId(authUser) {
+  if (authUser?.id) {
+    return authUser.id;
+  }
+
+  const prisma = getPrisma();
+  const user = await prisma.user.findUnique({ where: { email: DEMO_EMAIL } });
+
+  if (!user) {
+    throw createHttpError(500, 'Demo user is missing. Run the database seed script.');
+  }
+
+  return user.id;
 }
 
-function getList(id) {
-  const list = lists.find((item) => item.id === id);
+function serializeList(list) {
+  return {
+    id: list.id,
+    name: list.name,
+    items: list.items.map((item) => ({
+      id: item.id,
+      productId: item.productId,
+      quantity: item.quantity,
+      checked: item.checked,
+    })),
+  };
+}
+
+async function findOwnedList(listId, authUser) {
+  const prisma = getPrisma();
+  const userId = await getUserId(authUser);
+  const list = await prisma.shoppingList.findFirst({
+    where: { id: listId, userId },
+    include: { items: true },
+  });
 
   if (!list) {
     throw createHttpError(404, 'List not found');
@@ -16,82 +46,118 @@ function getList(id) {
   return list;
 }
 
-function createList(payload) {
+async function getLists(authUser) {
+  const prisma = getPrisma();
+  const userId = await getUserId(authUser);
+  const lists = await prisma.shoppingList.findMany({
+    where: { userId },
+    include: { items: true },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return lists.map(serializeList);
+}
+
+async function getList(id, authUser) {
+  const list = await findOwnedList(id, authUser);
+  return serializeList(list);
+}
+
+async function createList(payload, authUser) {
+  const prisma = getPrisma();
+  const userId = await getUserId(authUser);
   const name = String(payload.name || '').trim();
 
   if (!name) {
     throw createHttpError(400, 'List name is required');
   }
 
-  const list = { id: randomUUID(), name, items: [] };
-  lists.unshift(list);
-  return list;
+  const list = await prisma.shoppingList.create({
+    data: { name, userId },
+    include: { items: true },
+  });
+
+  return serializeList(list);
 }
 
-function addItem(listId, payload) {
-  const list = getList(listId);
-  const product = products.find((item) => item.id === payload.productId);
+async function addItem(listId, payload, authUser) {
+  const prisma = getPrisma();
+  const list = await findOwnedList(listId, authUser);
+  const product = await prisma.product.findUnique({ where: { id: payload.productId } });
 
   if (!product) {
     throw createHttpError(404, 'Product not found');
   }
 
-  const existingItem = list.items.find((item) => item.productId === product.id);
-
-  if (existingItem) {
-    existingItem.quantity += Number(payload.quantity || 1);
-    return list;
-  }
-
-  list.items.push({
-    id: randomUUID(),
-    productId: product.id,
-    quantity: Math.max(1, Number(payload.quantity || 1)),
-    checked: false,
+  await prisma.shoppingListItem.upsert({
+    where: {
+      shoppingListId_productId: {
+        shoppingListId: list.id,
+        productId: product.id,
+      },
+    },
+    create: {
+      shoppingListId: list.id,
+      productId: product.id,
+      quantity: Math.max(1, Number(payload.quantity || 1)),
+      checked: false,
+    },
+    update: {
+      quantity: { increment: Math.max(1, Number(payload.quantity || 1)) },
+    },
   });
 
-  return list;
+  return getList(list.id, authUser);
 }
 
-function updateItem(listId, itemId, payload) {
-  const list = getList(listId);
-  const item = list.items.find((currentItem) => currentItem.id === itemId);
+async function updateItem(listId, itemId, payload, authUser) {
+  const prisma = getPrisma();
+  const list = await findOwnedList(listId, authUser);
+  const item = await prisma.shoppingListItem.findFirst({
+    where: { id: itemId, shoppingListId: list.id },
+  });
 
   if (!item) {
     throw createHttpError(404, 'List item not found');
   }
 
+  const data = {};
+
   if (payload.quantity !== undefined) {
-    item.quantity = Math.max(1, Number(payload.quantity));
+    data.quantity = Math.max(1, Number(payload.quantity));
   }
 
   if (payload.checked !== undefined) {
-    item.checked = Boolean(payload.checked);
+    data.checked = Boolean(payload.checked);
   }
 
-  return list;
+  await prisma.shoppingListItem.update({
+    where: { id: item.id },
+    data,
+  });
+
+  return getList(list.id, authUser);
 }
 
-function removeItem(listId, itemId) {
-  const list = getList(listId);
-  const itemIndex = list.items.findIndex((item) => item.id === itemId);
+async function removeItem(listId, itemId, authUser) {
+  const prisma = getPrisma();
+  const list = await findOwnedList(listId, authUser);
+  const item = await prisma.shoppingListItem.findFirst({
+    where: { id: itemId, shoppingListId: list.id },
+  });
 
-  if (itemIndex === -1) {
+  if (!item) {
     throw createHttpError(404, 'List item not found');
   }
 
-  list.items.splice(itemIndex, 1);
-  return list;
+  await prisma.shoppingListItem.delete({ where: { id: item.id } });
+  return getList(list.id, authUser);
 }
 
-function deleteList(listId) {
-  const listIndex = lists.findIndex((list) => list.id === listId);
-
-  if (listIndex === -1) {
-    throw createHttpError(404, 'List not found');
-  }
-
-  lists.splice(listIndex, 1);
+async function deleteList(listId, authUser) {
+  const prisma = getPrisma();
+  const list = await findOwnedList(listId, authUser);
+  await prisma.shoppingList.delete({ where: { id: list.id } });
 }
 
 module.exports = {
@@ -102,4 +168,5 @@ module.exports = {
   updateItem,
   removeItem,
   deleteList,
+  serializeList,
 };

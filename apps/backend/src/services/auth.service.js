@@ -1,11 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { randomBytes, randomUUID } = require('crypto');
+const { randomBytes } = require('crypto');
+const { getPrisma } = require('../lib/prisma');
 const { getJwtSecret } = require('../utils/env');
 const { createHttpError } = require('../utils/http-error');
 
-const users = new Map();
-const resetTokens = new Map();
 const RESET_TOKEN_TTL_MS = 1000 * 60 * 30;
 
 function normalizeEmail(email) {
@@ -46,11 +45,8 @@ function signToken(user) {
   );
 }
 
-function findUserByEmail(email) {
-  return Array.from(users.values()).find((user) => user.email === email);
-}
-
-function signup(payload) {
+async function signup(payload) {
+  const prisma = getPrisma();
   const username = String(payload.username || payload.name || '').trim();
   const email = normalizeEmail(payload.email);
   const password = payload.password;
@@ -67,22 +63,19 @@ function signup(payload) {
     throw createHttpError(400, 'Password confirmation does not match');
   }
 
-  if (findUserByEmail(email)) {
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+
+  if (existingUser) {
     throw createHttpError(409, 'Email is already registered');
   }
 
-  const now = new Date().toISOString();
-  const user = {
-    id: randomUUID(),
-    username,
-    email,
-    passwordHash: bcrypt.hashSync(password, 10),
-    profileImage: null,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  users.set(user.id, user);
+  const user = await prisma.user.create({
+    data: {
+      username,
+      email,
+      passwordHash: bcrypt.hashSync(password, 10),
+    },
+  });
 
   return {
     user: sanitizeUser(user),
@@ -90,7 +83,8 @@ function signup(payload) {
   };
 }
 
-function login(payload) {
+async function login(payload) {
+  const prisma = getPrisma();
   const email = normalizeEmail(payload.email);
   const password = payload.password;
 
@@ -100,7 +94,7 @@ function login(payload) {
     throw createHttpError(400, 'Password is required');
   }
 
-  const user = findUserByEmail(email);
+  const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
     throw createHttpError(401, 'Invalid email or password');
@@ -112,11 +106,12 @@ function login(payload) {
   };
 }
 
-function recoverPassword(payload) {
+async function recoverPassword(payload) {
+  const prisma = getPrisma();
   const email = normalizeEmail(payload.email);
   assertEmail(email);
 
-  const user = findUserByEmail(email);
+  const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {
     throw createHttpError(404, 'No user was found for this email');
@@ -124,9 +119,12 @@ function recoverPassword(payload) {
 
   const token = randomBytes(32).toString('hex');
 
-  resetTokens.set(token, {
-    userId: user.id,
-    expiresAt: Date.now() + RESET_TOKEN_TTL_MS,
+  await prisma.passwordResetToken.create({
+    data: {
+      token,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MS),
+    },
   });
 
   return {
@@ -135,7 +133,8 @@ function recoverPassword(payload) {
   };
 }
 
-function resetPassword(payload) {
+async function resetPassword(payload) {
+  const prisma = getPrisma();
   const token = String(payload.token || '').trim();
   const password = payload.password || payload.newPassword;
   const passwordConfirmation = payload.passwordConfirmation || payload.confirmPassword;
@@ -150,29 +149,29 @@ function resetPassword(payload) {
     throw createHttpError(400, 'Password confirmation does not match');
   }
 
-  const resetToken = resetTokens.get(token);
+  const resetToken = await prisma.passwordResetToken.findUnique({ where: { token } });
 
-  if (!resetToken || resetToken.expiresAt < Date.now()) {
-    resetTokens.delete(token);
+  if (!resetToken || resetToken.expiresAt < new Date()) {
+    if (resetToken) {
+      await prisma.passwordResetToken.delete({ where: { token } });
+    }
     throw createHttpError(400, 'Reset token is invalid or expired');
   }
 
-  const user = users.get(resetToken.userId);
-
-  if (!user) {
-    resetTokens.delete(token);
-    throw createHttpError(400, 'Reset token is invalid or expired');
-  }
-
-  user.passwordHash = bcrypt.hashSync(password, 10);
-  user.updatedAt = new Date().toISOString();
-  resetTokens.delete(token);
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: resetToken.userId },
+      data: { passwordHash: bcrypt.hashSync(password, 10) },
+    }),
+    prisma.passwordResetToken.delete({ where: { token } }),
+  ]);
 
   return { message: 'Password updated successfully' };
 }
 
-function getUserProfile(userId) {
-  const user = users.get(userId);
+async function getUserProfile(userId) {
+  const prisma = getPrisma();
+  const user = await prisma.user.findUnique({ where: { id: userId } });
 
   if (!user) {
     throw createHttpError(404, 'User not found');
@@ -181,32 +180,39 @@ function getUserProfile(userId) {
   return sanitizeUser(user);
 }
 
-function updateUserProfile(userId, payload) {
-  const user = users.get(userId);
+async function updateUserProfile(userId, payload) {
+  const prisma = getPrisma();
+  const username = String(payload.username || payload.name || '').trim();
 
-  if (!user) {
-    throw createHttpError(404, 'User not found');
+  if (!username && payload.profileImage === undefined) {
+    throw createHttpError(400, 'Profile update payload is required');
   }
 
-  const username = String(payload.username || payload.name || user.username).trim();
+  const data = {};
 
-  if (!username) {
-    throw createHttpError(400, 'Name is required');
+  if (username) {
+    data.username = username;
   }
-
-  user.username = username;
 
   if (payload.profileImage !== undefined) {
-    user.profileImage = payload.profileImage;
+    data.profileImage = payload.profileImage;
   }
 
-  user.updatedAt = new Date().toISOString();
+  try {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data,
+    });
 
-  return sanitizeUser(user);
+    return sanitizeUser(user);
+  } catch (error) {
+    throw createHttpError(404, 'User not found');
+  }
 }
 
-function changePassword(userId, payload) {
-  const user = users.get(userId);
+async function changePassword(userId, payload) {
+  const prisma = getPrisma();
+  const user = await prisma.user.findUnique({ where: { id: userId } });
 
   if (!user) {
     throw createHttpError(404, 'User not found');
@@ -226,8 +232,10 @@ function changePassword(userId, payload) {
     throw createHttpError(400, 'Password confirmation does not match');
   }
 
-  user.passwordHash = bcrypt.hashSync(newPassword, 10);
-  user.updatedAt = new Date().toISOString();
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash: bcrypt.hashSync(newPassword, 10) },
+  });
 
   return { message: 'Password changed successfully' };
 }
