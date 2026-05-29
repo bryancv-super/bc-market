@@ -1,3 +1,5 @@
+import { getStoredToken } from "@/lib/auth/session";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export function getApiBaseUrl() {
@@ -12,10 +14,14 @@ export type ApiResponse<T> = {
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}) {
   const isFormData = options.body instanceof FormData;
+  const token = getStoredToken();
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
       ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...authHeaders,
       ...options.headers,
     },
   });
