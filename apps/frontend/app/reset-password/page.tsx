@@ -4,8 +4,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
 import { AuthShell } from "@/components/layout/auth-shell";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { resetPassword } from "@/lib/api/auth";
+import { getPasswordValidationError } from "@/lib/auth/validation";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -19,6 +20,19 @@ function ResetPasswordForm() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+
+    const passwordError = getPasswordValidationError(password);
+
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
+    if (password !== passwordConfirmation) {
+      setError("La confirmación de contraseña no coincide.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -34,22 +48,20 @@ function ResetPasswordForm() {
   return (
     <AuthShell title="Nueva contraseña" subtitle="Crea una nueva contraseña segura">
       <form className="space-y-7" onSubmit={handleSubmit}>
-        <Input
+        <PasswordInput
           label="Nueva contraseña"
           minLength={8}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="**********************"
           required
-          type="password"
           value={password}
         />
-        <Input
+        <PasswordInput
           label="Confirmar contraseña"
           minLength={8}
           onChange={(event) => setPasswordConfirmation(event.target.value)}
           placeholder="**********************"
           required
-          type="password"
           value={passwordConfirmation}
         />
         {error ? <p className="text-xs text-danger">{error}</p> : null}

@@ -6,6 +6,7 @@ import { FormEvent, useState } from "react";
 import { AuthShell } from "@/components/layout/auth-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { login, saveAuthSession } from "@/lib/api/auth";
 
 export default function LoginPage() {
@@ -42,12 +43,11 @@ export default function LoginPage() {
           type="email"
           value={email}
         />
-        <Input
+        <PasswordInput
           label="Contraseña"
           onChange={(event) => setPassword(event.target.value)}
           placeholder="**********************"
           required
-          type="password"
           value={password}
         />
         {error ? <p className="text-xs text-danger">{error}</p> : null}
