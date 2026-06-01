@@ -5,6 +5,7 @@ async function getProducts(req, res, next) {
     const products = await productsService.getProducts({
       search: req.query.search,
       category: req.query.category,
+      categories: req.query.categories,
     });
 
     res.json({ success: true, data: { products } });

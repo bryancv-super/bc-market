@@ -18,7 +18,8 @@ type AppState = {
   products: Product[];
   lists: ShoppingList[];
   createList: (name: string) => ShoppingList;
-  addProductToList: (listId: string, productId: string) => void;
+  createListWithProduct: (name: string, productId: string, quantity: number) => void;
+  addProductToList: (listId: string, productId: string, quantity?: number) => void;
   toggleItem: (listId: string, itemId: string) => void;
   updateItemQuantity: (listId: string, itemId: string, quantity: number) => void;
   replaceListItems: (listId: string, items: ShoppingList["items"]) => void;
@@ -49,13 +50,30 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       return tempList;
     }
 
-    function addProductToList(listId: string, productId: string) {
+    function createListWithProduct(name: string, productId: string, quantity: number) {
+      const normalizedQuantity = Math.max(1, quantity);
+      const tempList = {
+        id: `temp-${Date.now()}`,
+        name,
+        items: [{ id: `temp-item-${Date.now()}`, productId, quantity: normalizedQuantity, checked: false }],
+      };
+
+      setLists((current) => [tempList, ...current]);
+      createRemoteList(name)
+        .then((newList) => addItemToList(newList.id, productId, normalizedQuantity))
+        .then((updatedList) => {
+          setLists((current) => current.map((list) => (list.id === tempList.id ? updatedList : list)));
+        });
+    }
+
+    function addProductToList(listId: string, productId: string, quantity = 1) {
       const list = lists.find((l) => l.id === listId);
       if (!list) return;
       const existingItem = list.items.find((item) => item.productId === productId);
+      const normalizedQuantity = Math.max(1, quantity);
 
       if (existingItem) {
-        updateItemQuantity(listId, existingItem.id, existingItem.quantity + 1);
+        updateItemQuantity(listId, existingItem.id, existingItem.quantity + normalizedQuantity);
         return;
       }
 
@@ -64,12 +82,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           l.id === listId
             ? {
                 ...l,
-                items: [...l.items, { id: `temp-${Date.now()}`, productId, quantity: 1, checked: false }],
+                items: [...l.items, { id: `temp-${Date.now()}`, productId, quantity: normalizedQuantity, checked: false }],
               }
             : l,
         ),
       );
-      addItemToList(listId, productId).then((updatedList) => {
+      addItemToList(listId, productId, normalizedQuantity).then((updatedList) => {
         setLists((current) => current.map((l) => (l.id === listId ? updatedList : l)));
       });
     }
@@ -159,6 +177,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       products,
       lists,
       createList,
+      createListWithProduct,
       addProductToList,
       toggleItem,
       updateItemQuantity,

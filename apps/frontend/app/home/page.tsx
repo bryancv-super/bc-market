@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Minus, Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ProductCard } from "@/components/cards/product-card";
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -31,14 +32,14 @@ const categoryColors: Record<string, { border: string; bg: string; text: string 
   Limpieza:  { border: "#8b5cf6", bg: "#ede9fe", text: "#6d28d9" },
 };
 
-// Colores neutros para la opción especial "Todos"
-const todosColors = { border: "#e6e7ea", bg: "#f8fafc", text: "#0f172a" };
+const defaultFilterColors = { border: "#e6e7ea", bg: "#f8fafc", text: "#0f172a" };
 
 export default function HomePage() {
-  const { products, lists, addProductToList, createList } = useAppState();
+  const { products, lists, addProductToList, createList, createListWithProduct } = useAppState();
   const [query, setQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [quantity, setQuantity] = useState(1);
   const [newListName, setNewListName] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [toast, setToast] = useState("");
@@ -57,13 +58,13 @@ export default function HomePage() {
         product.name.toLowerCase().includes(normalizedQuery) ||
         product.category.toLowerCase().includes(normalizedQuery);
       const matchesCategory =
-        selectedCategory === "Todos" || product.category === selectedCategory;
+        selectedCategories.length === 0 || selectedCategories.includes(product.category);
       return matchesQuery && matchesCategory;
     });
-  }, [products, query, selectedCategory]);
+  }, [products, query, selectedCategories]);
 
   const categories = useMemo(
-    () => ["Todos", ...Array.from(new Set(products.map((p) => p.category)))],
+    () => Array.from(new Set(products.map((p) => p.category))),
     [products]
   );
 
@@ -74,17 +75,31 @@ export default function HomePage() {
 
   function handleAddToList(listId: string) {
     if (!selectedProduct) return;
-    addProductToList(listId, selectedProduct.id);
+    addProductToList(listId, selectedProduct.id, quantity);
     setSelectedProduct(null);
+    setQuantity(1);
     showToast("Producto agregado a la lista");
   }
 
   function handleCreateList() {
     if (!newListName.trim()) return;
-    createList(newListName.trim());
+    if (selectedProduct) {
+      createListWithProduct(newListName.trim(), selectedProduct.id, quantity);
+    } else {
+      createList(newListName.trim());
+    }
     setNewListName("");
     setSelectedProduct(null);
+    setQuantity(1);
     showToast("Lista creada");
+  }
+
+  function toggleCategory(category: string) {
+    setSelectedCategories((current) =>
+      current.includes(category)
+        ? current.filter((selectedCategory) => selectedCategory !== category)
+        : [...current, category],
+    );
   }
 
   return (
@@ -96,8 +111,10 @@ export default function HomePage() {
           onFilterClick={() => setIsFilterOpen(true)}
           value={query}
         />
-        {selectedCategory !== "Todos" ? (
-          <p className="text-xs text-text-secondary">Filtro activo: {selectedCategory}</p>
+        {selectedCategories.length > 0 ? (
+          <p className="text-xs text-text-secondary">
+            Filtros activos: {selectedCategories.join(", ")}
+          </p>
         ) : null}
         <Link
           className={cn(
@@ -124,9 +141,13 @@ export default function HomePage() {
             <ProductCard
               key={product.id}
               category={product.category}
+              imageUrl={product.imageUrl}
               name={product.name}
               price={product.price}
-              onAdd={() => setSelectedProduct(product)}
+              onAdd={() => {
+                setSelectedProduct(product);
+                setQuantity(1);
+              }}
             />
           ))
         )}
@@ -148,6 +169,30 @@ export default function HomePage() {
               >
                 Cerrar
               </button>
+            </div>
+
+            <div className="mt-5 flex items-center justify-between rounded-xl border border-border-muted px-4 py-3">
+              <span className="text-sm font-bold text-text-primary">Cantidad</span>
+              <div className="flex items-center gap-3">
+                <button
+                  aria-label="Disminuir cantidad"
+                  className="grid size-8 place-items-center rounded-lg bg-primary text-white disabled:opacity-45"
+                  disabled={quantity <= 1}
+                  type="button"
+                  onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+                >
+                  <Minus className="size-4" />
+                </button>
+                <span className="min-w-8 text-center text-base font-bold text-text-primary">{quantity}</span>
+                <button
+                  aria-label="Aumentar cantidad"
+                  className="grid size-8 place-items-center rounded-lg bg-primary text-white"
+                  type="button"
+                  onClick={() => setQuantity((current) => current + 1)}
+                >
+                  <Plus className="size-4" />
+                </button>
+              </div>
             </div>
 
             <div className="mt-5 space-y-3">
@@ -205,13 +250,8 @@ export default function HomePage() {
 
             <div className="mt-5 space-y-3">
               {categories.map((category) => {
-                // Obtenemos los colores para esta categoría.
-                // "Todos" usa colores neutros ya que no representa una categoría real.
-                const colors = category === "Todos"
-                  ? todosColors
-                  : (categoryColors[category] ?? todosColors);
-
-                const isActive = selectedCategory === category;
+                const colors = categoryColors[category] ?? defaultFilterColors;
+                const isActive = selectedCategories.includes(category);
 
                 return (
                   <button
@@ -225,10 +265,7 @@ export default function HomePage() {
                       backgroundColor: isActive ? colors.bg : "#ffffff",
                     }}
                     type="button"
-                    onClick={() => {
-                      setSelectedCategory(category);
-                      setIsFilterOpen(false);
-                    }}
+                    onClick={() => toggleCategory(category)}
                   >
                     <span
                       className="font-bold"
@@ -252,6 +289,20 @@ export default function HomePage() {
                   </button>
                 );
               })}
+            </div>
+            <div className="mt-5 flex gap-3 border-t border-border-muted pt-5">
+              <Button
+                className="flex-1"
+                disabled={selectedCategories.length === 0}
+                type="button"
+                variant="outline"
+                onClick={() => setSelectedCategories([])}
+              >
+                Limpiar
+              </Button>
+              <Button className="flex-1" type="button" onClick={() => setIsFilterOpen(false)}>
+                Aplicar
+              </Button>
             </div>
           </section>
         </div>
