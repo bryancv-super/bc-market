@@ -90,7 +90,6 @@ export default function EditListPage() {
                   return (
                     <EditableItemCard
                       key={item.id}
-                      category={product?.category}
                       imageUrl={product?.imageUrl}
                       name={product?.name ?? "Producto no disponible"}
                       price={product?.price ?? ""}

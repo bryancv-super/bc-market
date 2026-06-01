@@ -6,7 +6,6 @@ type EditableItemCardProps = {
   name: string;
   price: string;
   imageUrl?: string | null;
-  category?: string;
   quantity: number;
   onIncrease?: () => void;
   onDecrease?: () => void;
@@ -17,13 +16,12 @@ export function EditableItemCard({
   name,
   price,
   imageUrl,
-  category,
   quantity,
   onIncrease,
   onDecrease,
   onDelete,
 }: EditableItemCardProps) {
-  const resolvedImageUrl = getProductImageUrl(category, imageUrl);
+  const resolvedImageUrl = getProductImageUrl(name, imageUrl);
 
   return (
     <article className="card-shadow flex min-h-[100px] items-center justify-between gap-3 rounded-2xl bg-surface p-4">

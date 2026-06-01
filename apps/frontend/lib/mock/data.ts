@@ -1,4 +1,4 @@
-import { categoryImageUrls } from "@/lib/products/images";
+import { productImageUrls } from "@/lib/products/images";
 
 export type Product = {
   id: string;
@@ -79,7 +79,7 @@ const productBase: Array<Omit<Product, "imageUrl">> = [
 
 export const mockProducts: Product[] = productBase.map((product) => ({
   ...product,
-  imageUrl: categoryImageUrls[product.category] ?? categoryImageUrls.Despensa,
+  imageUrl: productImageUrls[product.name] ?? productImageUrls["Arroz selecto"],
 }));
 
 export const mockLists: ShoppingList[] = [

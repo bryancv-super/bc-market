@@ -7,13 +7,12 @@ type ProductItemCardProps = {
   price: string;
   quantity: string;
   imageUrl?: string | null;
-  category?: string;
   checked?: boolean;
   onToggle?: () => void;
 };
 
-export function ProductItemCard({ name, price, quantity, imageUrl, category, checked, onToggle }: ProductItemCardProps) {
-  const resolvedImageUrl = getProductImageUrl(category, imageUrl);
+export function ProductItemCard({ name, price, quantity, imageUrl, checked, onToggle }: ProductItemCardProps) {
+  const resolvedImageUrl = getProductImageUrl(name, imageUrl);
 
   return (
     <article className="card-shadow flex min-h-[108px] items-start gap-4 rounded-2xl bg-surface p-4">

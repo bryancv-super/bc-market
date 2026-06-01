@@ -28,7 +28,7 @@ const defaultColors = { border: "#f59e0b", bg: "#ffffff", text: "#f59e0b" };
 
 export function ProductCard({ name, price, category, imageUrl, onAdd }: ProductCardProps) {
   const colors = categoryColors[category] ?? defaultColors;
-  const resolvedImageUrl = getProductImageUrl(category, imageUrl);
+  const resolvedImageUrl = getProductImageUrl(name, imageUrl);
 
   return (
     <article className="card-shadow flex min-h-[154px] gap-4 rounded-2xl bg-surface p-4">

@@ -56,7 +56,6 @@ export default function ListDetailPage() {
                   return (
                     <ProductItemCard
                       key={item.id}
-                      category={product?.category}
                       checked={item.checked}
                       imageUrl={product?.imageUrl}
                       name={product?.name ?? "Producto no disponible"}
