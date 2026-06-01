@@ -11,7 +11,6 @@ import { AppShell } from "@/components/layout/app-shell";
 import { AppHeader } from "@/components/layout/app-header";
 import { PageSection } from "@/components/layout/page-section";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { SearchBar } from "@/components/ui/search-bar";
 import { Product } from "@/lib/mock/data";
 import { useAppState } from "@/lib/mock/store";
@@ -35,12 +34,11 @@ const categoryColors: Record<string, { border: string; bg: string; text: string 
 const defaultFilterColors = { border: "#e6e7ea", bg: "#f8fafc", text: "#0f172a" };
 
 export default function HomePage() {
-  const { products, lists, addProductToList, createList, createListWithProduct } = useAppState();
+  const { products, lists, addProductToList } = useAppState();
   const [query, setQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [quantity, setQuantity] = useState(1);
-  const [newListName, setNewListName] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [toast, setToast] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -79,19 +77,6 @@ export default function HomePage() {
     setSelectedProduct(null);
     setQuantity(1);
     showToast("Producto agregado a la lista");
-  }
-
-  function handleCreateList() {
-    if (!newListName.trim()) return;
-    if (selectedProduct) {
-      createListWithProduct(newListName.trim(), selectedProduct.id, quantity);
-    } else {
-      createList(newListName.trim());
-    }
-    setNewListName("");
-    setSelectedProduct(null);
-    setQuantity(1);
-    showToast("Lista creada");
   }
 
   function toggleCategory(category: string) {
@@ -197,7 +182,19 @@ export default function HomePage() {
 
             <div className="mt-5 space-y-3">
               {lists.length === 0 ? (
-                <EmptyState title="No tienes listas creadas" />
+                <div className="space-y-4 rounded-xl border border-border-muted p-4 text-center">
+                  <EmptyState title="No tienes listas creadas" />
+                  <Link
+                    className={cn(
+                      "inline-flex h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-medium transition-colors",
+                      buttonVariants.primary,
+                    )}
+                    href="/listas?create=true"
+                    onClick={() => setSelectedProduct(null)}
+                  >
+                    Ir a Mis Listas
+                  </Link>
+                </div>
               ) : (
                 lists.map((list) => (
                   <button
@@ -211,23 +208,6 @@ export default function HomePage() {
                   </button>
                 ))
               )}
-            </div>
-
-            <div className="mt-5 space-y-3 border-t border-border-muted pt-5">
-              <Input
-                label="Nueva lista"
-                onChange={(event) => setNewListName(event.target.value)}
-                placeholder="Compras de la semana"
-                value={newListName}
-              />
-              <Button
-                className="w-full"
-                disabled={!newListName.trim()}
-                type="button"
-                onClick={handleCreateList}
-              >
-                Crear lista
-              </Button>
             </div>
           </section>
         </div>

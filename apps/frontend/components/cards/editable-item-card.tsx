@@ -1,10 +1,12 @@
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getProductImageUrl } from "@/lib/products/images";
 
 type EditableItemCardProps = {
   name: string;
   price: string;
   imageUrl?: string | null;
+  category?: string;
   quantity: number;
   onIncrease?: () => void;
   onDecrease?: () => void;
@@ -15,20 +17,22 @@ export function EditableItemCard({
   name,
   price,
   imageUrl,
+  category,
   quantity,
   onIncrease,
   onDecrease,
   onDelete,
 }: EditableItemCardProps) {
+  const resolvedImageUrl = getProductImageUrl(category, imageUrl);
+
   return (
     <article className="card-shadow flex min-h-[100px] items-center justify-between gap-3 rounded-2xl bg-surface p-4">
       <div
         className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary-soft bg-cover bg-center text-base font-bold text-primary-dark"
-        role={imageUrl ? "img" : undefined}
-        aria-label={imageUrl ? name : undefined}
-        style={{ backgroundImage: imageUrl ? `url(${imageUrl})` : undefined }}
+        role="img"
+        aria-label={name}
+        style={{ backgroundImage: `url(${resolvedImageUrl})` }}
       >
-        {imageUrl ? null : name.slice(0, 1).toUpperCase()}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">

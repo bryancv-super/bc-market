@@ -18,7 +18,6 @@ type AppState = {
   products: Product[];
   lists: ShoppingList[];
   createList: (name: string) => ShoppingList;
-  createListWithProduct: (name: string, productId: string, quantity: number) => void;
   addProductToList: (listId: string, productId: string, quantity?: number) => void;
   toggleItem: (listId: string, itemId: string) => void;
   updateItemQuantity: (listId: string, itemId: string, quantity: number) => void;
@@ -48,22 +47,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setLists((current) => current.map((list) => (list.id === tempList.id ? newList : list)));
       });
       return tempList;
-    }
-
-    function createListWithProduct(name: string, productId: string, quantity: number) {
-      const normalizedQuantity = Math.max(1, quantity);
-      const tempList = {
-        id: `temp-${Date.now()}`,
-        name,
-        items: [{ id: `temp-item-${Date.now()}`, productId, quantity: normalizedQuantity, checked: false }],
-      };
-
-      setLists((current) => [tempList, ...current]);
-      createRemoteList(name)
-        .then((newList) => addItemToList(newList.id, productId, normalizedQuantity))
-        .then((updatedList) => {
-          setLists((current) => current.map((list) => (list.id === tempList.id ? updatedList : list)));
-        });
     }
 
     function addProductToList(listId: string, productId: string, quantity = 1) {
@@ -177,7 +160,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       products,
       lists,
       createList,
-      createListWithProduct,
       addProductToList,
       toggleItem,
       updateItemQuantity,

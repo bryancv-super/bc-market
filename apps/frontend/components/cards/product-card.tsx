@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { getProductImageUrl } from "@/lib/products/images";
 
 type ProductCardProps = {
   name: string;
@@ -27,23 +28,23 @@ const defaultColors = { border: "#f59e0b", bg: "#ffffff", text: "#f59e0b" };
 
 export function ProductCard({ name, price, category, imageUrl, onAdd }: ProductCardProps) {
   const colors = categoryColors[category] ?? defaultColors;
+  const resolvedImageUrl = getProductImageUrl(category, imageUrl);
 
   return (
     <article className="card-shadow flex min-h-[154px] gap-4 rounded-2xl bg-surface p-4">
       <div
         className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-xl border text-xl font-bold"
-        role={imageUrl ? "img" : undefined}
-        aria-label={imageUrl ? name : undefined}
+        role="img"
+        aria-label={name}
         style={{
           borderColor: colors.border,
           backgroundColor: colors.bg,
-          backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+          backgroundImage: `url(${resolvedImageUrl})`,
           backgroundPosition: "center",
           backgroundSize: "cover",
           color: colors.text,
         }}
       >
-        {imageUrl ? null : name.slice(0, 1).toUpperCase()}
       </div>
       <div className="min-w-0 flex-1">
         <span

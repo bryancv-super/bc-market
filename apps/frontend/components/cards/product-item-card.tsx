@@ -1,16 +1,20 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { getProductImageUrl } from "@/lib/products/images";
 
 type ProductItemCardProps = {
   name: string;
   price: string;
   quantity: string;
   imageUrl?: string | null;
+  category?: string;
   checked?: boolean;
   onToggle?: () => void;
 };
 
-export function ProductItemCard({ name, price, quantity, imageUrl, checked, onToggle }: ProductItemCardProps) {
+export function ProductItemCard({ name, price, quantity, imageUrl, category, checked, onToggle }: ProductItemCardProps) {
+  const resolvedImageUrl = getProductImageUrl(category, imageUrl);
+
   return (
     <article className="card-shadow flex min-h-[108px] items-start gap-4 rounded-2xl bg-surface p-4">
       <button
@@ -26,11 +30,10 @@ export function ProductItemCard({ name, price, quantity, imageUrl, checked, onTo
       </button>
       <div
         className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary-soft bg-cover bg-center text-base font-bold text-primary-dark"
-        role={imageUrl ? "img" : undefined}
-        aria-label={imageUrl ? name : undefined}
-        style={{ backgroundImage: imageUrl ? `url(${imageUrl})` : undefined }}
+        role="img"
+        aria-label={name}
+        style={{ backgroundImage: `url(${resolvedImageUrl})` }}
       >
-        {imageUrl ? null : name.slice(0, 1).toUpperCase()}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">
