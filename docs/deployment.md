@@ -32,7 +32,8 @@ The seed creates `demo@bcmarket.com` with password `password123`, product catego
 DATABASE_URL=
 JWT_SECRET=
 NEXT_PUBLIC_API_URL=/api
-NEXT_PUBLIC_APP_URL=https://your-project.vercel.app
+APP_URL=https://your-production-domain.vercel.app
+NEXT_PUBLIC_APP_URL=https://your-production-domain.vercel.app
 BLOB_READ_WRITE_TOKEN=
 RESEND_API_KEY=
 RESEND_FROM_EMAIL="BC Market <onboarding@resend.dev>"
@@ -41,6 +42,8 @@ RESEND_FROM_EMAIL="BC Market <onboarding@resend.dev>"
 4. Build with the default Next.js settings.
 
 The Next.js app exposes the backend through same-origin route handlers under `/api/*`.
+
+Use `APP_URL` as the canonical public site URL for emails such as password recovery. Avoid branch or preview deployment URLs here, because reset links can outlive those deployments.
 
 ## Storage And Email
 
@@ -51,6 +54,6 @@ The Next.js app exposes the backend through same-origin route handlers under `/a
 ## Verification
 
 1. Open `/api/health` on the Vercel deployment.
-2. Log in with `demo@bcmarket.com` / `password123`.
+2. Log in with `demo@bcmarket.com` / `Password123!`.
 3. Upload a profile avatar and confirm it persists after refresh.
 4. Request password recovery and confirm Resend sends the reset email.
