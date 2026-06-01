@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BC Market
+
+BC Market is a fullstack MVP for supermarket shopping lists. It lets users browse a catalog, filter products, create shopping lists, manage quantities, and handle account flows such as signup, login, password recovery, profile editing, and password changes.
+
+The project is demo-friendly while still being prepared for PostgreSQL persistence through Prisma.
+
+## Stack
+
+- Next.js App Router and React
+- Express API
+- Prisma and PostgreSQL
+- JWT authentication with hashed passwords
+- npm workspaces
+
+## Project Structure
+
+```plaintext
+apps/
+  frontend/
+  backend/
+docs/
+prisma/
+```
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create local environment files from the examples when needed:
+
+```bash
+cp .env.example .env
+cp apps/backend/.env.example apps/backend/.env
+cp apps/frontend/.env.example apps/frontend/.env
+```
+
+Run both apps:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Run each app separately:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev:frontend
+npm run dev:backend
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Default local URLs:
 
-## Learn More
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:3001`
 
-To learn more about Next.js, take a look at the following resources:
+## Useful Commands
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run lint --workspace=frontend
+npm run build --workspace=frontend
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:seed
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Seeded demo credentials:
 
-## Deploy on Vercel
+- Email: `demo@bcmarket.com`
+- Password: `Password123!`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Environment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Common variables:
+
+- `DATABASE_URL`: PostgreSQL connection string.
+- `JWT_SECRET`: Secret used to sign auth tokens.
+- `NEXT_PUBLIC_API_URL`: Frontend API base URL.
+- `PORT`: Backend server port.
+
+## Documentation
+
+More detail lives in `docs/`:
+
+- Architecture: `docs/architecture/ARCHITECTURE.md`
+- Deployment: `docs/deployment.md`
+- Git workflow: `docs/git-workflow.md`
+- Design specs and flows: `docs/design/` and `docs/diagrams/`
