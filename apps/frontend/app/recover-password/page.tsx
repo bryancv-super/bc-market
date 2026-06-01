@@ -6,6 +6,7 @@ import { AuthShell } from "@/components/layout/auth-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { recoverPassword } from "@/lib/api/auth";
+import { getEmailValidationError } from "@/lib/auth/validation";
 
 export default function RecoverPasswordPage() {
   const [email, setEmail] = useState("");
@@ -17,6 +18,14 @@ export default function RecoverPasswordPage() {
     event.preventDefault();
     setError("");
     setSuccessMessage("");
+
+    const emailError = getEmailValidationError(email);
+
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
+
     setIsLoading(true);
 
     try {

@@ -6,6 +6,8 @@ const { getJwtSecret } = require('../utils/env');
 const { createHttpError } = require('../utils/http-error');
 
 const RESET_TOKEN_TTL_MS = 1000 * 60 * 30;
+const PASSWORD_REQUIREMENTS =
+  'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one symbol';
 
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
@@ -18,8 +20,11 @@ function assertEmail(email) {
 }
 
 function assertPassword(password) {
-  if (typeof password !== 'string' || password.length < 8) {
-    throw createHttpError(400, 'Password must contain at least 8 characters');
+  if (
+    typeof password !== 'string' ||
+    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password)
+  ) {
+    throw createHttpError(400, PASSWORD_REQUIREMENTS);
   }
 }
 

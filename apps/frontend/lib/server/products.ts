@@ -19,23 +19,44 @@ function serializeProduct(product: {
   };
 }
 
-export async function getProducts(filters: { search?: string | null; category?: string | null } = {}) {
+function parseCategories(category?: string | null, categories?: string | null) {
+  return String(categories || category || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+export async function getProducts(
+  filters: { search?: string | null; category?: string | null; categories?: string | null } = {},
+) {
   const prisma = getPrisma();
   const search = String(filters.search || "").trim();
-  const category = String(filters.category || "").trim();
+  const categories = parseCategories(filters.category, filters.categories);
 
   const products = await prisma.product.findMany({
     where: {
       isActive: true,
-      ...(search
-        ? {
-            OR: [
-              { name: { contains: search, mode: "insensitive" } },
-              { category: { name: { contains: search, mode: "insensitive" } } },
-            ],
-          }
-        : {}),
-      ...(category ? { category: { name: { equals: category, mode: "insensitive" } } } : {}),
+      AND: [
+        ...(search
+          ? [
+              {
+                OR: [
+                  { name: { contains: search, mode: "insensitive" as const } },
+                  { category: { name: { contains: search, mode: "insensitive" as const } } },
+                ],
+              },
+            ]
+          : []),
+        ...(categories.length > 0
+          ? [
+              {
+                OR: categories.map((category) => ({
+                  category: { name: { equals: category, mode: "insensitive" as const } },
+                })),
+              },
+            ]
+          : []),
+      ],
     },
     include: { category: true },
     orderBy: { name: "asc" },

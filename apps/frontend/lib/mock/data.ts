@@ -1,9 +1,12 @@
+import { productImageUrls } from "@/lib/products/images";
+
 export type Product = {
   id: string;
   name: string;
   category: string;
   price: string;
   unit: string;
+  imageUrl: string;
 };
 
 export type ShoppingListItem = {
@@ -25,7 +28,7 @@ export const mockUser = {
   email: "ejemplo@correo.com",
 };
 
-export const mockProducts: Product[] = [
+const productBase: Array<Omit<Product, "imageUrl">> = [
   // Despensa
   { id: "product-1", name: "Arroz selecto", category: "Despensa", price: "RD$ 85.00", unit: "libra" },
   { id: "product-7", name: "Habichuelas rojas", category: "Despensa", price: "RD$ 65.00", unit: "libra" },
@@ -73,6 +76,11 @@ export const mockProducts: Product[] = [
   { id: "product-36", name: "Papel higiénico", category: "Limpieza", price: "RD$ 180.00", unit: "paquete" },
   { id: "product-37", name: "Jabón de cuaba", category: "Limpieza", price: "RD$ 45.00", unit: "pasta" },
 ];
+
+export const mockProducts: Product[] = productBase.map((product) => ({
+  ...product,
+  imageUrl: productImageUrls[product.name] ?? productImageUrls["Arroz selecto"],
+}));
 
 export const mockLists: ShoppingList[] = [
   {

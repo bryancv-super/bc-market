@@ -4,6 +4,7 @@ import { randomBytes } from "crypto";
 import { getPrisma } from "@/lib/server/prisma";
 import { createHttpError } from "@/lib/server/http";
 import { sendPasswordRecoveryEmail } from "@/lib/server/email";
+import { PASSWORD_REQUIREMENTS, isStrongPassword } from "@/lib/auth/validation";
 
 const RESET_TOKEN_TTL_MS = 1000 * 60 * 30;
 
@@ -27,8 +28,8 @@ function assertEmail(email: string) {
 }
 
 function assertPassword(password: unknown) {
-  if (typeof password !== "string" || password.length < 8) {
-    throw createHttpError(400, "Password must contain at least 8 characters");
+  if (typeof password !== "string" || !isStrongPassword(password)) {
+    throw createHttpError(400, PASSWORD_REQUIREMENTS);
   }
 }
 

@@ -12,23 +12,42 @@ function serializeProduct(product) {
   };
 }
 
+function parseCategories(category, categories) {
+  return String(categories || category || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
 async function getProducts(filters = {}) {
   const prisma = getPrisma();
   const search = String(filters.search || '').trim();
-  const category = String(filters.category || '').trim();
+  const categories = parseCategories(filters.category, filters.categories);
 
   const products = await prisma.product.findMany({
     where: {
       isActive: true,
-      ...(search
-        ? {
-            OR: [
-              { name: { contains: search, mode: 'insensitive' } },
-              { category: { name: { contains: search, mode: 'insensitive' } } },
-            ],
-          }
-        : {}),
-      ...(category ? { category: { name: { equals: category, mode: 'insensitive' } } } : {}),
+      AND: [
+        ...(search
+          ? [
+              {
+                OR: [
+                  { name: { contains: search, mode: 'insensitive' } },
+                  { category: { name: { contains: search, mode: 'insensitive' } } },
+                ],
+              },
+            ]
+          : []),
+        ...(categories.length > 0
+          ? [
+              {
+                OR: categories.map((category) => ({
+                  category: { name: { equals: category, mode: 'insensitive' } },
+                })),
+              },
+            ]
+          : []),
+      ],
     },
     include: { category: true },
     orderBy: { name: 'asc' },

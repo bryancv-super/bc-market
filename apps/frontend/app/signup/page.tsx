@@ -6,7 +6,9 @@ import { FormEvent, useState } from "react";
 import { AuthShell } from "@/components/layout/auth-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { saveAuthSession, signup } from "@/lib/api/auth";
+import { getEmailValidationError, getPasswordValidationError } from "@/lib/auth/validation";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -20,6 +22,20 @@ export default function SignupPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+
+    const emailError = getEmailValidationError(email);
+    const passwordError = getPasswordValidationError(password);
+
+    if (emailError || passwordError) {
+      setError(emailError || passwordError);
+      return;
+    }
+
+    if (password !== passwordConfirmation) {
+      setError("La confirmación de contraseña no coincide.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -45,22 +61,20 @@ export default function SignupPage() {
           type="email"
           value={email}
         />
-        <Input
+        <PasswordInput
           label="Contraseña"
           minLength={8}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="****************"
           required
-          type="password"
           value={password}
         />
-        <Input
+        <PasswordInput
           label="Confirmar contraseña"
           minLength={8}
           onChange={(event) => setPasswordConfirmation(event.target.value)}
           placeholder="****************"
           required
-          type="password"
           value={passwordConfirmation}
         />
         {error ? <p className="text-xs text-danger">{error}</p> : null}

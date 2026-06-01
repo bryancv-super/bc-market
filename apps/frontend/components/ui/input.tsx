@@ -2,7 +2,7 @@ import { InputHTMLAttributes, ReactNode } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-type InputProps = InputHTMLAttributes<HTMLInputElement> & {
+export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
   error?: string;
   rightIcon?: ReactNode;
@@ -15,8 +15,9 @@ export function Input({ className, label, error, rightIcon, ...props }: InputPro
       <span className="relative block">
         <input
           className={cn(
-            "h-[50px] w-full rounded-[13px] border bg-surface px-4 text-sm text-text-primary outline-none transition-colors placeholder:text-text-secondary",
-            error ? "border-danger pr-11" : "border-border-muted",
+            "h-12.5 w-full rounded-[13px] border bg-surface px-4 text-sm text-text-primary outline-none transition-colors placeholder:text-text-secondary",
+            error || rightIcon ? "pr-11" : "",
+            error ? "border-danger" : "border-border-muted",
             className,
           )}
           {...props}

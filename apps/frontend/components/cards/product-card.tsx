@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Tag } from "@/components/ui/tag";
+import { getProductImageUrl } from "@/lib/products/images";
 
 type ProductCardProps = {
   name: string;
   price: string;
   category: string;
+  imageUrl?: string | null;
   onAdd?: () => void;
 };
 
@@ -25,31 +26,47 @@ const categoryColors: Record<string, { border: string; bg: string; text: string 
 
 const defaultColors = { border: "#f59e0b", bg: "#ffffff", text: "#f59e0b" };
 
-export function ProductCard({ name, price, category, onAdd }: ProductCardProps) {
+export function ProductCard({ name, price, category, imageUrl, onAdd }: ProductCardProps) {
   const colors = categoryColors[category] ?? defaultColors;
+  const resolvedImageUrl = getProductImageUrl(name, imageUrl);
 
   return (
-    <article className="card-shadow min-h-[146px] rounded-2xl bg-surface p-4">
-      {/* Tag con colores inline para que Tailwind no los elimine */}
-      <span
-        className="inline-flex h-[29px] min-w-[96px] items-center rounded-xl border px-3 text-xs"
+    <article className="card-shadow flex min-h-38.5 gap-4 rounded-2xl bg-surface p-4">
+      <div
+        className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-xl border text-xl font-bold"
+        role="img"
+        aria-label={name}
         style={{
           borderColor: colors.border,
           backgroundColor: colors.bg,
+          backgroundImage: `url(${resolvedImageUrl})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
           color: colors.text,
         }}
       >
-        {category}
-      </span>
+      </div>
+      <div className="min-w-0 flex-1">
+        <span
+          className="inline-flex h-7.25 max-w-full items-center rounded-xl border px-3 text-xs"
+          style={{
+            borderColor: colors.border,
+            backgroundColor: colors.bg,
+            color: colors.text,
+          }}
+        >
+          {category}
+        </span>
 
-      <div className="mt-6 flex items-end justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-text-primary">{name}</h2>
-          <p className="mt-6 text-base text-text-primary">{price}</p>
+        <div className="mt-5 flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold text-text-primary">{name}</h2>
+            <p className="mt-4 text-base text-text-primary">{price}</p>
+          </div>
+          <Button className="h-10 shrink-0 px-3 text-xs" type="button" variant="outline" onClick={onAdd}>
+            Agregar
+          </Button>
         </div>
-        <Button className="h-10 px-3 text-xs" type="button" variant="outline" onClick={onAdd}>
-          Agregar a lista
-        </Button>
       </div>
     </article>
   );

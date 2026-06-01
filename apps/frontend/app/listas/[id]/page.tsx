@@ -57,6 +57,7 @@ export default function ListDetailPage() {
                     <ProductItemCard
                       key={item.id}
                       checked={item.checked}
+                      imageUrl={product?.imageUrl}
                       name={product?.name ?? "Producto no disponible"}
                       price={product?.price ?? ""}
                       quantity={`${item.quantity} ${product?.unit ?? "unidad"}`}

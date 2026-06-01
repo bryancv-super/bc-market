@@ -6,6 +6,46 @@ const prisma = new PrismaClient({
   adapter: new PrismaPg(process.env.DATABASE_URL),
 });
 
+const productImages = {
+  'Arroz selecto': 'https://loremflickr.com/320/320/rice?lock=1',
+  'Habichuelas rojas': 'https://loremflickr.com/320/320/red,beans?lock=2',
+  'Aceite de soya': 'https://loremflickr.com/320/320/cooking,oil?lock=3',
+  'Azúcar blanca': 'https://loremflickr.com/320/320/sugar?lock=4',
+  'Salsa de tomate': 'https://loremflickr.com/320/320/tomato,sauce?lock=5',
+  'Leche entera': 'https://loremflickr.com/320/320/milk?lock=6',
+  'Queso cheddar': 'https://loremflickr.com/320/320/cheddar,cheese?lock=7',
+  'Yogurt natural': 'https://loremflickr.com/320/320/yogurt?lock=8',
+  'Mantequilla con sal': 'https://loremflickr.com/320/320/butter?lock=9',
+  'Huevos frescos': 'https://loremflickr.com/320/320/eggs?lock=10',
+  'Sal molida': 'https://loremflickr.com/320/320/salt?lock=11',
+  'Ajo en pasta': 'https://loremflickr.com/320/320/garlic?lock=12',
+  'Café molido': 'https://loremflickr.com/320/320/coffee?lock=13',
+  'Pan sobao': 'https://loremflickr.com/320/320/bread?lock=14',
+  'Pan de agua': 'https://loremflickr.com/320/320/baguette?lock=15',
+  'Galletas de soda': 'https://loremflickr.com/320/320/crackers?lock=16',
+  'Manzana roja': 'https://loremflickr.com/320/320/red,apple?lock=17',
+  'Guineo maduro': 'https://loremflickr.com/320/320/banana?lock=18',
+  'Naranja dulce': 'https://loremflickr.com/320/320/orange,fruit?lock=19',
+  'Limón persa': 'https://loremflickr.com/320/320/lime?lock=20',
+  Piña: 'https://loremflickr.com/320/320/pineapple?lock=21',
+  'Pechuga de pollo': 'https://loremflickr.com/320/320/chicken,breast?lock=22',
+  'Carne de res molida': 'https://loremflickr.com/320/320/ground,beef?lock=23',
+  'Chuleta de cerdo ahumada': 'https://loremflickr.com/320/320/pork,chop?lock=24',
+  'Salami super especial': 'https://loremflickr.com/320/320/salami?lock=25',
+  'Cebolla roja': 'https://loremflickr.com/320/320/red,onion?lock=26',
+  'Ají morrón': 'https://loremflickr.com/320/320/bell,pepper?lock=27',
+  'Tomate barceló': 'https://loremflickr.com/320/320/tomato?lock=28',
+  'Papa blanca': 'https://loremflickr.com/320/320/potato?lock=29',
+  Zanahoria: 'https://loremflickr.com/320/320/carrot?lock=30',
+  'Agua purificada': 'https://loremflickr.com/320/320/water,bottle?lock=31',
+  'Jugo de naranja': 'https://loremflickr.com/320/320/orange,juice?lock=32',
+  'Refresco de cola': 'https://loremflickr.com/320/320/cola,soda?lock=33',
+  'Detergente en polvo': 'https://loremflickr.com/320/320/laundry,detergent?lock=34',
+  'Cloro líquido': 'https://loremflickr.com/320/320/cleaning,bottle?lock=35',
+  'Papel higiénico': 'https://loremflickr.com/320/320/toilet,paper?lock=36',
+  'Jabón de cuaba': 'https://loremflickr.com/320/320/soap?lock=37',
+};
+
 const products = [
   { name: 'Arroz selecto', category: 'Despensa', slug: 'despensa', price: '85.00', unit: 'libra' },
   { name: 'Habichuelas rojas', category: 'Despensa', slug: 'despensa', price: '65.00', unit: 'libra' },
@@ -51,12 +91,12 @@ async function main() {
     where: { email: 'demo@bcmarket.com' },
     update: {
       username: 'Demo User',
-      passwordHash: bcrypt.hashSync('password123', 10),
+      passwordHash: bcrypt.hashSync('Password123!', 10),
     },
     create: {
       username: 'Demo User',
       email: 'demo@bcmarket.com',
-      passwordHash: bcrypt.hashSync('password123', 10),
+      passwordHash: bcrypt.hashSync('Password123!', 10),
     },
   });
 
@@ -77,6 +117,7 @@ async function main() {
       name: product.name,
       price: new Prisma.Decimal(product.price),
       unit: product.unit,
+      imageUrl: productImages[product.name] || 'https://loremflickr.com/320/320/grocery?lock=99',
       isActive: true,
       categoryId: category.id,
     };

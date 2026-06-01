@@ -18,7 +18,7 @@ type AppState = {
   products: Product[];
   lists: ShoppingList[];
   createList: (name: string) => ShoppingList;
-  addProductToList: (listId: string, productId: string) => void;
+  addProductToList: (listId: string, productId: string, quantity?: number) => void;
   toggleItem: (listId: string, itemId: string) => void;
   updateItemQuantity: (listId: string, itemId: string, quantity: number) => void;
   replaceListItems: (listId: string, items: ShoppingList["items"]) => void;
@@ -49,13 +49,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       return tempList;
     }
 
-    function addProductToList(listId: string, productId: string) {
+    function addProductToList(listId: string, productId: string, quantity = 1) {
       const list = lists.find((l) => l.id === listId);
       if (!list) return;
       const existingItem = list.items.find((item) => item.productId === productId);
+      const normalizedQuantity = Math.max(1, quantity);
 
       if (existingItem) {
-        updateItemQuantity(listId, existingItem.id, existingItem.quantity + 1);
+        updateItemQuantity(listId, existingItem.id, existingItem.quantity + normalizedQuantity);
         return;
       }
 
@@ -64,12 +65,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           l.id === listId
             ? {
                 ...l,
-                items: [...l.items, { id: `temp-${Date.now()}`, productId, quantity: 1, checked: false }],
+                items: [...l.items, { id: `temp-${Date.now()}`, productId, quantity: normalizedQuantity, checked: false }],
               }
             : l,
         ),
       );
-      addItemToList(listId, productId).then((updatedList) => {
+      addItemToList(listId, productId, normalizedQuantity).then((updatedList) => {
         setLists((current) => current.map((l) => (l.id === listId ? updatedList : l)));
       });
     }

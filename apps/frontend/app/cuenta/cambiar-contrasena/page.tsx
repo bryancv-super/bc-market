@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { changePassword } from "@/lib/api/auth";
+import { getPasswordValidationError } from "@/lib/auth/validation";
 import { getStoredToken } from "@/lib/auth/session";
 
 export default function ChangePasswordPage() {
@@ -22,6 +23,18 @@ export default function ChangePasswordPage() {
     event.preventDefault();
     setError("");
     setSuccess("");
+
+    const passwordError = getPasswordValidationError(newPassword);
+
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
+    if (newPassword !== passwordConfirmation) {
+      setError("La confirmación de contraseña no coincide.");
+      return;
+    }
 
     const token = getStoredToken();
 
@@ -49,30 +62,27 @@ export default function ChangePasswordPage() {
     <AppShell className="bg-surface px-8">
       <Header backHref="/cuenta" title="Cambiar contraseña" />
       <form className="mt-16 space-y-10" onSubmit={handleSubmit}>
-        <Input
+        <PasswordInput
           label="Contraseña actual"
           onChange={(event) => setCurrentPassword(event.target.value)}
           placeholder="**********************"
           required
-          type="password"
           value={currentPassword}
         />
-        <Input
+        <PasswordInput
           label="Nueva contraseña"
           minLength={8}
           onChange={(event) => setNewPassword(event.target.value)}
           placeholder="**********************"
           required
-          type="password"
           value={newPassword}
         />
-        <Input
+        <PasswordInput
           label="Confirmar contraseña"
           minLength={8}
           onChange={(event) => setPasswordConfirmation(event.target.value)}
           placeholder="**********************"
           required
-          type="password"
           value={passwordConfirmation}
         />
         {error ? <p className="text-xs text-danger">{error}</p> : null}

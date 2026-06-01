@@ -7,6 +7,7 @@ export async function GET(request: Request) {
     const products = await getProducts({
       search: url.searchParams.get("search"),
       category: url.searchParams.get("category"),
+      categories: url.searchParams.get("categories"),
     });
 
     return success({ products });

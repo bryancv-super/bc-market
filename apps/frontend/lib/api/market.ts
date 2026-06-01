@@ -69,10 +69,10 @@ export function deleteRemoteList(listId: string) {
   });
 }
 
-export function addItemToList(listId: string, productId: string) {
+export function addItemToList(listId: string, productId: string, quantity = 1) {
   return apiRequest<ListResponse>(`/lists/${listId}/items`, {
     method: "POST",
-    body: JSON.stringify({ productId, quantity: 1, checked: false }),
+    body: JSON.stringify({ productId, quantity, checked: false }),
   }).then((res) => res.list);
 }
 
