@@ -12,11 +12,11 @@ export function UserSummaryCard({ name, email, profileImage }: UserSummaryCardPr
       {profileImage ? (
         <div
           aria-label=""
-          className="mx-auto size-[60px] rounded-full bg-cover bg-center"
+          className="mx-auto size-15 rounded-full bg-cover bg-center"
           style={{ backgroundImage: `url(${profileImage})` }}
         />
       ) : (
-        <div className="mx-auto grid size-[60px] place-items-center rounded-full bg-border-muted text-text-primary">
+        <div className="mx-auto grid size-15 place-items-center rounded-full bg-border-muted text-text-primary">
           <UserRound className="size-10" />
         </div>
       )}

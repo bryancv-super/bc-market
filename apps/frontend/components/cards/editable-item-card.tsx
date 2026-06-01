@@ -24,7 +24,7 @@ export function EditableItemCard({
   const resolvedImageUrl = getProductImageUrl(name, imageUrl);
 
   return (
-    <article className="card-shadow flex min-h-[100px] items-center justify-between gap-3 rounded-2xl bg-surface p-4">
+    <article className="card-shadow flex min-h-25 items-center justify-between gap-3 rounded-2xl bg-surface p-4">
       <div
         className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary-soft bg-cover bg-center text-base font-bold text-primary-dark"
         role="img"
@@ -47,7 +47,7 @@ export function EditableItemCard({
           </button>
         </div>
       </div>
-      <Button className="h-[68px] px-4 text-xs" type="button" variant="danger-outline" onClick={onDelete}>
+      <Button className="h-17 px-4 text-xs" type="button" variant="danger-outline" onClick={onDelete}>
         Eliminar
       </Button>
     </article>

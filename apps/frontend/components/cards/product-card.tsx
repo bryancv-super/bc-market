@@ -31,7 +31,7 @@ export function ProductCard({ name, price, category, imageUrl, onAdd }: ProductC
   const resolvedImageUrl = getProductImageUrl(name, imageUrl);
 
   return (
-    <article className="card-shadow flex min-h-[154px] gap-4 rounded-2xl bg-surface p-4">
+    <article className="card-shadow flex min-h-38.5 gap-4 rounded-2xl bg-surface p-4">
       <div
         className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-xl border text-xl font-bold"
         role="img"
@@ -48,7 +48,7 @@ export function ProductCard({ name, price, category, imageUrl, onAdd }: ProductC
       </div>
       <div className="min-w-0 flex-1">
         <span
-          className="inline-flex h-[29px] max-w-full items-center rounded-xl border px-3 text-xs"
+          className="inline-flex h-7.25 max-w-full items-center rounded-xl border px-3 text-xs"
           style={{
             borderColor: colors.border,
             backgroundColor: colors.bg,

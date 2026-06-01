@@ -15,7 +15,7 @@ export function ProductItemCard({ name, price, quantity, imageUrl, checked, onTo
   const resolvedImageUrl = getProductImageUrl(name, imageUrl);
 
   return (
-    <article className="card-shadow flex min-h-[108px] items-start gap-4 rounded-2xl bg-surface p-4">
+    <article className="card-shadow flex min-h-27 items-start gap-4 rounded-2xl bg-surface p-4">
       <button
         aria-label={checked ? "Marcar producto pendiente" : "Marcar producto comprado"}
         className={cn(

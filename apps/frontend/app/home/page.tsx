@@ -141,7 +141,7 @@ export default function HomePage() {
       {/* Panel: seleccionar lista existente para agregar el producto */}
       {selectedProduct ? (
         <div className="fixed inset-0 z-50 grid place-items-end bg-text-primary/20 px-5 pb-6">
-          <section className="w-full max-w-[342px] rounded-t-2xl bg-surface p-5 shadow-xl">
+          <section className="w-full max-w-85.5 rounded-t-2xl bg-surface p-5 shadow-xl">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold text-text-primary">Seleccionar lista</h2>
@@ -216,7 +216,7 @@ export default function HomePage() {
       {/* Panel: filtro de categorías con colores por categoría */}
       {isFilterOpen ? (
         <div className="fixed inset-0 z-50 grid place-items-end bg-text-primary/20 px-5 pb-6">
-          <section className="w-full max-w-[342px] rounded-t-2xl bg-surface p-5 shadow-xl">
+          <section className="w-full max-w-85.5 rounded-t-2xl bg-surface p-5 shadow-xl">
             <div className="flex items-start justify-between gap-4">
               <h2 className="text-xl font-bold text-text-primary">Filtro de categorías</h2>
               <button
