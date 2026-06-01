@@ -5,11 +5,12 @@ type ProductItemCardProps = {
   name: string;
   price: string;
   quantity: string;
+  imageUrl?: string | null;
   checked?: boolean;
   onToggle?: () => void;
 };
 
-export function ProductItemCard({ name, price, quantity, checked, onToggle }: ProductItemCardProps) {
+export function ProductItemCard({ name, price, quantity, imageUrl, checked, onToggle }: ProductItemCardProps) {
   return (
     <article className="card-shadow flex min-h-[108px] items-start gap-4 rounded-2xl bg-surface p-4">
       <button
@@ -23,6 +24,14 @@ export function ProductItemCard({ name, price, quantity, checked, onToggle }: Pr
       >
         {checked ? <Check className="size-3" /> : null}
       </button>
+      <div
+        className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary-soft bg-cover bg-center text-base font-bold text-primary-dark"
+        role={imageUrl ? "img" : undefined}
+        aria-label={imageUrl ? name : undefined}
+        style={{ backgroundImage: imageUrl ? `url(${imageUrl})` : undefined }}
+      >
+        {imageUrl ? null : name.slice(0, 1).toUpperCase()}
+      </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">
           <h2 className={cn("text-xl font-bold text-text-primary", checked && "text-text-secondary line-through")}>

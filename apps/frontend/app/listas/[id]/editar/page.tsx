@@ -90,6 +90,7 @@ export default function EditListPage() {
                   return (
                     <EditableItemCard
                       key={item.id}
+                      imageUrl={product?.imageUrl}
                       name={product?.name ?? "Producto no disponible"}
                       price={product?.price ?? ""}
                       quantity={Math.max(item.quantity, 1)}
